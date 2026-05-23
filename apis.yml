@@ -1,0 +1,320 @@
+aid: clerk
+url: https://raw.githubusercontent.com/api-evangelist/clerk/refs/heads/main/apis.yml
+name: Clerk
+kind: company
+description: >-
+  Clerk is a drop-in authentication and user management platform for web and
+  mobile applications. The product spans sign-up / sign-in flows, user
+  profiles, multi-factor authentication, passkeys, social sign-on, magic
+  links, bot and fraud detection, organizations (B2B / multi-tenant) with
+  custom roles and invitations, and a Billing product for subscriptions. The
+  Backend API at api.clerk.com is authenticated with a Bearer secret key and
+  has an OpenAPI specification. Frontend SDKs cover Next.js, React, React
+  Router, Expo, Astro, TanStack React Start, Chrome Extension, and vanilla
+  JavaScript. Backend SDKs cover Node, Go, Python, Ruby, Java, PHP, and C#.
+  Webhooks are delivered via Svix.
+image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+tags:
+  - Authentication
+  - User Management
+  - Identity
+  - Passkeys
+  - MFA
+  - B2B
+  - Organizations
+  - Billing
+created: '2026-05-23'
+modified: '2026-05-23'
+specificationVersion: '0.19'
+apis:
+  - aid: clerk:backend-api
+    name: Clerk Backend API
+    description: >-
+      Server-to-server REST API for managing users, sessions, organizations,
+      organization memberships, organization invitations, JWT templates, sign-in
+      tokens, OAuth applications, SAML connections, allowlist / blocklist
+      identifiers, actor tokens, webhooks, and instance settings. Authenticated
+      with a Bearer secret key (sk_test_... or sk_live_...). Versioned under
+      /v1.
+    humanURL: https://clerk.com/docs/reference/backend-api
+    baseURL: https://api.clerk.com
+    tags:
+      - Backend
+      - REST
+      - Users
+      - Sessions
+      - Organizations
+    properties:
+      - type: Documentation
+        url: https://clerk.com/docs/reference/backend-api
+      - type: OpenAPI
+        url: https://github.com/clerk/openapi-specs
+  - aid: clerk:frontend-api
+    name: Clerk Frontend API
+    description: >-
+      Browser-facing API consumed by Clerk's frontend SDKs and ClerkJS for
+      sign-up, sign-in, session refresh, and user profile mutations. Endpoint
+      is instance-specific (subdomain on clerk.accounts.dev or a customer
+      vanity domain). Authenticated with the publishable key and short-lived
+      client tokens.
+    humanURL: https://clerk.com/docs/reference/frontend-api
+    baseURL: https://clerk.accounts.dev
+    tags:
+      - Frontend
+      - REST
+      - Sessions
+    properties:
+      - type: Documentation
+        url: https://clerk.com/docs/reference/frontend-api
+  - aid: clerk:webhooks
+    name: Clerk Webhooks (Svix)
+    description: >-
+      Webhook events delivered via Svix for user, session, organization, email,
+      SMS, and role lifecycle changes. Customers configure endpoints in the
+      dashboard and verify signatures with the Svix libraries.
+    humanURL: https://clerk.com/docs/integrations/webhooks/overview
+    baseURL: customer-configured
+    tags:
+      - Webhooks
+      - Events
+      - Svix
+    properties:
+      - type: Documentation
+        url: https://clerk.com/docs/integrations/webhooks/overview
+  - aid: clerk:javascript
+    name: Clerk JavaScript SDK
+    description: >-
+      Official ClerkJS browser library and monorepo of framework adapters
+      (Next.js, React, Expo, React Router, Astro, Chrome Extension, TanStack).
+      Powers Clerk's prebuilt UI components and headless hooks.
+    humanURL: https://github.com/clerk/javascript
+    baseURL: https://github.com/clerk/javascript
+    tags:
+      - SDK
+      - JavaScript
+      - Frontend
+    properties:
+      - type: Repository
+        url: https://github.com/clerk/javascript
+  - aid: clerk:sdk-nextjs
+    name: Clerk Next.js SDK
+    description: >-
+      Next.js integration covering App Router and Pages Router, middleware,
+      route handlers, server components, and server actions. Distributed from
+      the @clerk/nextjs package inside the JavaScript monorepo.
+    humanURL: https://clerk.com/docs/quickstarts/nextjs
+    baseURL: https://github.com/clerk/javascript
+    tags:
+      - SDK
+      - Next.js
+      - Frontend
+    properties:
+      - type: Documentation
+        url: https://clerk.com/docs/quickstarts/nextjs
+  - aid: clerk:sdk-react
+    name: Clerk React SDK
+    description: >-
+      React components, hooks, and providers from the @clerk/clerk-react
+      package for plain React SPAs.
+    humanURL: https://clerk.com/docs/quickstarts/react
+    baseURL: https://github.com/clerk/javascript
+    tags:
+      - SDK
+      - React
+      - Frontend
+    properties:
+      - type: Documentation
+        url: https://clerk.com/docs/quickstarts/react
+  - aid: clerk:sdk-expo
+    name: Clerk Expo SDK
+    description: >-
+      Expo / React Native bindings for Clerk supporting OAuth via deep links,
+      secure session storage, and biometrics.
+    humanURL: https://clerk.com/docs/quickstarts/expo
+    baseURL: https://github.com/clerk/javascript
+    tags:
+      - SDK
+      - Expo
+      - React Native
+      - Mobile
+    properties:
+      - type: Documentation
+        url: https://clerk.com/docs/quickstarts/expo
+  - aid: clerk:sdk-react-router
+    name: Clerk React Router SDK
+    description: >-
+      Adapter for React Router v7 (Remix successor) covering loaders, actions,
+      and server-rendered authentication.
+    humanURL: https://clerk.com/docs/quickstarts/react-router
+    baseURL: https://github.com/clerk/javascript
+    tags:
+      - SDK
+      - React Router
+      - Frontend
+    properties:
+      - type: Documentation
+        url: https://clerk.com/docs/quickstarts/react-router
+  - aid: clerk:sdk-astro
+    name: Clerk Astro SDK
+    description: >-
+      Adapter for the Astro framework with components and middleware.
+    humanURL: https://clerk.com/docs/quickstarts/astro
+    baseURL: https://github.com/clerk/javascript
+    tags:
+      - SDK
+      - Astro
+      - Frontend
+    properties:
+      - type: Documentation
+        url: https://clerk.com/docs/quickstarts/astro
+  - aid: clerk:sdk-tanstack-start
+    name: Clerk TanStack Start SDK
+    description: >-
+      Adapter for TanStack Start (React full-stack framework) with route-level
+      authentication helpers.
+    humanURL: https://clerk.com/docs/quickstarts/tanstack-start
+    baseURL: https://github.com/clerk/javascript
+    tags:
+      - SDK
+      - TanStack
+      - Frontend
+    properties:
+      - type: Documentation
+        url: https://clerk.com/docs/quickstarts/tanstack-start
+  - aid: clerk:sdk-node
+    name: Clerk Node.js SDK
+    description: >-
+      Backend SDK for Node.js (@clerk/backend / @clerk/express / @clerk/fastify)
+      that wraps the Backend API and verifies session JWTs.
+    humanURL: https://clerk.com/docs/references/backend/overview
+    baseURL: https://github.com/clerk/javascript
+    tags:
+      - SDK
+      - Node.js
+      - Backend
+    properties:
+      - type: Documentation
+        url: https://clerk.com/docs/references/backend/overview
+  - aid: clerk:sdk-go
+    name: Clerk Go SDK
+    description: >-
+      Official Go SDK for the Clerk Backend API.
+    humanURL: https://github.com/clerk/clerk-sdk-go
+    baseURL: https://github.com/clerk/clerk-sdk-go
+    tags:
+      - SDK
+      - Go
+      - Backend
+    properties:
+      - type: Repository
+        url: https://github.com/clerk/clerk-sdk-go
+  - aid: clerk:sdk-python
+    name: Clerk Python SDK
+    description: >-
+      Official Python SDK for the Clerk Backend API.
+    humanURL: https://github.com/clerk/clerk-sdk-python
+    baseURL: https://github.com/clerk/clerk-sdk-python
+    tags:
+      - SDK
+      - Python
+      - Backend
+    properties:
+      - type: Repository
+        url: https://github.com/clerk/clerk-sdk-python
+  - aid: clerk:sdk-ruby
+    name: Clerk Ruby SDK
+    description: >-
+      Official Ruby SDK for the Clerk Backend API, with a Rails integration.
+    humanURL: https://github.com/clerk/clerk-sdk-ruby
+    baseURL: https://github.com/clerk/clerk-sdk-ruby
+    tags:
+      - SDK
+      - Ruby
+      - Rails
+      - Backend
+    properties:
+      - type: Repository
+        url: https://github.com/clerk/clerk-sdk-ruby
+  - aid: clerk:sdk-java
+    name: Clerk Java SDK
+    description: >-
+      Official Java SDK for the Clerk Backend API.
+    humanURL: https://github.com/clerk/clerk-sdk-java
+    baseURL: https://github.com/clerk/clerk-sdk-java
+    tags:
+      - SDK
+      - Java
+      - Backend
+    properties:
+      - type: Repository
+        url: https://github.com/clerk/clerk-sdk-java
+  - aid: clerk:sdk-php
+    name: Clerk PHP SDK
+    description: >-
+      Official PHP SDK for the Clerk Backend API.
+    humanURL: https://github.com/clerk/clerk-sdk-php
+    baseURL: https://github.com/clerk/clerk-sdk-php
+    tags:
+      - SDK
+      - PHP
+      - Backend
+    properties:
+      - type: Repository
+        url: https://github.com/clerk/clerk-sdk-php
+  - aid: clerk:sdk-csharp
+    name: Clerk C# / .NET SDK
+    description: >-
+      Official C# / .NET SDK for the Clerk Backend API.
+    humanURL: https://github.com/clerk/clerk-sdk-csharp
+    baseURL: https://github.com/clerk/clerk-sdk-csharp
+    tags:
+      - SDK
+      - .NET
+      - C#
+      - Backend
+    properties:
+      - type: Repository
+        url: https://github.com/clerk/clerk-sdk-csharp
+  - aid: clerk:openapi-specs
+    name: Clerk OpenAPI Specifications
+    description: >-
+      Public repository of OpenAPI specifications for Clerk's APIs, used as
+      the source for generated SDKs and documentation.
+    humanURL: https://github.com/clerk/openapi-specs
+    baseURL: https://github.com/clerk/openapi-specs
+    tags:
+      - OpenAPI
+      - Specifications
+    properties:
+      - type: Repository
+        url: https://github.com/clerk/openapi-specs
+common:
+  - type: Website
+    url: https://clerk.com/
+  - type: Documentation
+    url: https://clerk.com/docs
+  - type: GitHub
+    url: https://github.com/clerk
+  - type: Pricing
+    url: https://clerk.com/pricing
+  - type: Changelog
+    url: https://clerk.com/changelog
+  - type: Blog
+    url: https://clerk.com/blog
+  - type: Status
+    url: https://status.clerk.com/
+  - type: LinkedIn
+    url: https://www.linkedin.com/company/clerk-dev/
+integrations:
+  - name: Next.js
+  - name: React
+  - name: Expo
+  - name: Astro
+  - name: TanStack
+  - name: Supabase
+  - name: Convex
+  - name: Vercel
+  - name: Svix
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com
