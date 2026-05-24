@@ -305,6 +305,8 @@ common:
     url: https://status.clerk.com/
   - type: LinkedIn
     url: https://www.linkedin.com/company/clerk-dev/
+  - type: LLMsTxt
+    url: https://clerk.com/llms.txt
 integrations:
   - name: Next.js
   - name: React
