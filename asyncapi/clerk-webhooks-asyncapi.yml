@@ -1,0 +1,1444 @@
+asyncapi: '2.6.0'
+info:
+  title: Clerk Webhooks
+  version: '1.0.0'
+  description: |
+    AsyncAPI 2.6 specification for Clerk's webhook surface. Clerk delivers webhook
+    events via Svix to customer-configured endpoints. Each delivery is an HTTP POST
+    of a JSON envelope signed with three Svix headers (`svix-id`, `svix-timestamp`,
+    `svix-signature`) that customers verify with the Clerk `verifyWebhook` helper or
+    the Svix libraries.
+
+    The envelope shape is documented at
+    https://clerk.com/docs/guides/development/webhooks/overview and contains the
+    fields `data`, `object` (always `event`), `type`, `timestamp`, and `instance_id`.
+
+    Event types modeled here cover the lifecycle resources called out in the Clerk
+    documentation: users, sessions, organizations, organization memberships,
+    organization invitations, roles, permissions, email delivery, SMS delivery, and
+    Clerk Billing (subscriptions, subscription items, payment attempts).
+
+    The receiving endpoint URL is customer-configured in the Clerk Dashboard
+    (Webhooks page); the server entry below is a placeholder for the consumer's
+    HTTPS endpoint.
+  contact:
+    name: API Evangelist
+    url: https://apievangelist.com
+  license:
+    name: MIT
+    url: https://github.com/api-evangelist/clerk/blob/main/LICENSE
+  termsOfService: https://clerk.com/terms
+  x-source-documentation:
+    - https://clerk.com/docs/guides/development/webhooks/overview
+    - https://clerk.com/docs/guides/development/webhooks/syncing
+    - https://clerk.com/docs/guides/development/webhooks/billing
+    - https://clerk.com/docs/reference/backend/verify-webhook
+    - https://docs.svix.com/receiving/verifying-payloads/how-manual
+
+defaultContentType: application/json
+
+servers:
+  customer-endpoint:
+    url: https://{host}/{path}
+    protocol: https
+    description: |
+      Customer-configured HTTPS endpoint that receives Svix-signed webhook
+      deliveries from Clerk. The URL is configured in the Clerk Dashboard on the
+      Webhooks page.
+    variables:
+      host:
+        description: Hostname of the consuming application.
+        default: example.com
+      path:
+        description: Path of the webhook receiver route on the consuming application.
+        default: api/webhooks/clerk
+
+channels:
+  clerk/webhook:
+    description: |
+      Single inbound webhook channel. Clerk POSTs every event type to the same
+      customer endpoint; consumers branch on the envelope `type` field.
+    bindings:
+      http:
+        type: request
+        method: POST
+        bindingVersion: '0.3.0'
+    subscribe:
+      operationId: receiveClerkWebhook
+      summary: Receive a Clerk webhook event.
+      description: |
+        Receive a Svix-signed Clerk webhook delivery. The envelope `type` field
+        identifies which lifecycle event triggered the delivery.
+      bindings:
+        http:
+          bindingVersion: '0.3.0'
+      message:
+        oneOf:
+          - $ref: '#/components/messages/UserCreated'
+          - $ref: '#/components/messages/UserUpdated'
+          - $ref: '#/components/messages/UserDeleted'
+          - $ref: '#/components/messages/SessionCreated'
+          - $ref: '#/components/messages/SessionEnded'
+          - $ref: '#/components/messages/SessionRemoved'
+          - $ref: '#/components/messages/SessionRevoked'
+          - $ref: '#/components/messages/OrganizationCreated'
+          - $ref: '#/components/messages/OrganizationUpdated'
+          - $ref: '#/components/messages/OrganizationDeleted'
+          - $ref: '#/components/messages/OrganizationMembershipCreated'
+          - $ref: '#/components/messages/OrganizationMembershipUpdated'
+          - $ref: '#/components/messages/OrganizationMembershipDeleted'
+          - $ref: '#/components/messages/OrganizationInvitationCreated'
+          - $ref: '#/components/messages/OrganizationInvitationAccepted'
+          - $ref: '#/components/messages/OrganizationInvitationRevoked'
+          - $ref: '#/components/messages/RoleCreated'
+          - $ref: '#/components/messages/RoleUpdated'
+          - $ref: '#/components/messages/RoleDeleted'
+          - $ref: '#/components/messages/PermissionCreated'
+          - $ref: '#/components/messages/PermissionUpdated'
+          - $ref: '#/components/messages/PermissionDeleted'
+          - $ref: '#/components/messages/EmailCreated'
+          - $ref: '#/components/messages/SmsCreated'
+          - $ref: '#/components/messages/SubscriptionCreated'
+          - $ref: '#/components/messages/SubscriptionUpdated'
+          - $ref: '#/components/messages/SubscriptionActive'
+          - $ref: '#/components/messages/SubscriptionPastDue'
+          - $ref: '#/components/messages/SubscriptionItemUpdated'
+          - $ref: '#/components/messages/SubscriptionItemActive'
+          - $ref: '#/components/messages/SubscriptionItemCanceled'
+          - $ref: '#/components/messages/SubscriptionItemUpcoming'
+          - $ref: '#/components/messages/SubscriptionItemEnded'
+          - $ref: '#/components/messages/SubscriptionItemAbandoned'
+          - $ref: '#/components/messages/SubscriptionItemIncomplete'
+          - $ref: '#/components/messages/SubscriptionItemPastDue'
+          - $ref: '#/components/messages/SubscriptionItemFreeTrialEnding'
+          - $ref: '#/components/messages/PaymentAttemptCreated'
+          - $ref: '#/components/messages/PaymentAttemptUpdated'
+
+components:
+  messageTraits:
+    SvixSignedEnvelope:
+      headers:
+        type: object
+        required:
+          - svix-id
+          - svix-timestamp
+          - svix-signature
+        properties:
+          svix-id:
+            type: string
+            description: |
+              Unique message identifier for the webhook delivery. Stable across
+              retries of the same message; unique across distinct messages.
+            example: msg_2abcDEFghiJKLmnoPQRstuVWXyz
+          svix-timestamp:
+            type: string
+            description: |
+              Unix timestamp in seconds since epoch indicating when the delivery
+              was signed by Svix. Used to reject replay attacks.
+            example: '1740000000'
+          svix-signature:
+            type: string
+            description: |
+              Space-delimited list of Base64-encoded HMAC-SHA256 signatures, each
+              prefixed with a version identifier (for example, `v1,`). Verified by
+              concatenating `svix-id`, `svix-timestamp`, and the raw request body
+              with periods and signing with the endpoint's signing secret.
+            example: v1,g0hM9SsE+OTPJTGt/tmIKtSyZlE3uFJELVlNIOLJ1OE=
+      bindings:
+        http:
+          headers:
+            type: object
+            properties:
+              content-type:
+                type: string
+                const: application/json
+          bindingVersion: '0.3.0'
+
+  messages:
+    UserCreated:
+      name: UserCreated
+      title: user.created
+      summary: A new user registered in the app or was created via the Dashboard or Backend API.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/UserCreatedEnvelope'
+    UserUpdated:
+      name: UserUpdated
+      title: user.updated
+      summary: User information was updated via Clerk components, the Dashboard, or Backend API.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/UserUpdatedEnvelope'
+    UserDeleted:
+      name: UserDeleted
+      title: user.deleted
+      summary: A user deleted their account, or the account was removed via the Dashboard or Backend API.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/UserDeletedEnvelope'
+
+    SessionCreated:
+      name: SessionCreated
+      title: session.created
+      summary: A new session was created for a user.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SessionCreatedEnvelope'
+    SessionEnded:
+      name: SessionEnded
+      title: session.ended
+      summary: A session ended (for example, the user signed out).
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SessionEndedEnvelope'
+    SessionRemoved:
+      name: SessionRemoved
+      title: session.removed
+      summary: A session was removed.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SessionRemovedEnvelope'
+    SessionRevoked:
+      name: SessionRevoked
+      title: session.revoked
+      summary: A session was revoked by an admin or via the Backend API.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SessionRevokedEnvelope'
+
+    OrganizationCreated:
+      name: OrganizationCreated
+      title: organization.created
+      summary: An organization was created.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/OrganizationCreatedEnvelope'
+    OrganizationUpdated:
+      name: OrganizationUpdated
+      title: organization.updated
+      summary: An organization was updated.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/OrganizationUpdatedEnvelope'
+    OrganizationDeleted:
+      name: OrganizationDeleted
+      title: organization.deleted
+      summary: An organization was deleted.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/OrganizationDeletedEnvelope'
+
+    OrganizationMembershipCreated:
+      name: OrganizationMembershipCreated
+      title: organizationMembership.created
+      summary: A user was added as a member of an organization.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/OrganizationMembershipCreatedEnvelope'
+    OrganizationMembershipUpdated:
+      name: OrganizationMembershipUpdated
+      title: organizationMembership.updated
+      summary: An organization membership was updated (for example, role change).
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/OrganizationMembershipUpdatedEnvelope'
+    OrganizationMembershipDeleted:
+      name: OrganizationMembershipDeleted
+      title: organizationMembership.deleted
+      summary: A user was removed from or left an organization.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/OrganizationMembershipDeletedEnvelope'
+
+    OrganizationInvitationCreated:
+      name: OrganizationInvitationCreated
+      title: organizationInvitation.created
+      summary: An organization invitation was created.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/OrganizationInvitationCreatedEnvelope'
+    OrganizationInvitationAccepted:
+      name: OrganizationInvitationAccepted
+      title: organizationInvitation.accepted
+      summary: A recipient accepted an organization invitation.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/OrganizationInvitationAcceptedEnvelope'
+    OrganizationInvitationRevoked:
+      name: OrganizationInvitationRevoked
+      title: organizationInvitation.revoked
+      summary: An organization invitation was revoked.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/OrganizationInvitationRevokedEnvelope'
+
+    RoleCreated:
+      name: RoleCreated
+      title: role.created
+      summary: A custom role was created in the instance.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/RoleCreatedEnvelope'
+    RoleUpdated:
+      name: RoleUpdated
+      title: role.updated
+      summary: A custom role was updated.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/RoleUpdatedEnvelope'
+    RoleDeleted:
+      name: RoleDeleted
+      title: role.deleted
+      summary: A custom role was deleted.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/RoleDeletedEnvelope'
+
+    PermissionCreated:
+      name: PermissionCreated
+      title: permission.created
+      summary: A custom permission was created in the instance.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/PermissionCreatedEnvelope'
+    PermissionUpdated:
+      name: PermissionUpdated
+      title: permission.updated
+      summary: A custom permission was updated.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/PermissionUpdatedEnvelope'
+    PermissionDeleted:
+      name: PermissionDeleted
+      title: permission.deleted
+      summary: A custom permission was deleted.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/PermissionDeletedEnvelope'
+
+    EmailCreated:
+      name: EmailCreated
+      title: email.created
+      summary: |
+        An email message that Clerk would deliver has been created. Listened to
+        when Clerk email delivery is disabled so the customer can deliver the
+        message themselves.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/EmailCreatedEnvelope'
+    SmsCreated:
+      name: SmsCreated
+      title: sms.created
+      summary: |
+        An SMS message that Clerk would deliver has been created. Listened to
+        when Clerk SMS delivery is disabled so the customer can deliver the
+        message themselves.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SmsCreatedEnvelope'
+
+    SubscriptionCreated:
+      name: SubscriptionCreated
+      title: subscription.created
+      summary: A top-level Subscription was created for a payer.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SubscriptionCreatedEnvelope'
+    SubscriptionUpdated:
+      name: SubscriptionUpdated
+      title: subscription.updated
+      summary: The top-level Subscription was updated (non-status change).
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SubscriptionUpdatedEnvelope'
+    SubscriptionActive:
+      name: SubscriptionActive
+      title: subscription.active
+      summary: The top-level Subscription transitioned to active.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SubscriptionActiveEnvelope'
+    SubscriptionPastDue:
+      name: SubscriptionPastDue
+      title: subscription.pastDue
+      summary: The top-level Subscription is past due.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SubscriptionPastDueEnvelope'
+
+    SubscriptionItemUpdated:
+      name: SubscriptionItemUpdated
+      title: subscriptionItem.updated
+      summary: A Subscription Item was updated (non-status change).
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SubscriptionItemUpdatedEnvelope'
+    SubscriptionItemActive:
+      name: SubscriptionItemActive
+      title: subscriptionItem.active
+      summary: A Subscription Item was set to active.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SubscriptionItemActiveEnvelope'
+    SubscriptionItemCanceled:
+      name: SubscriptionItemCanceled
+      title: subscriptionItem.canceled
+      summary: A Subscription Item was canceled.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SubscriptionItemCanceledEnvelope'
+    SubscriptionItemUpcoming:
+      name: SubscriptionItemUpcoming
+      title: subscriptionItem.upcoming
+      summary: A Subscription Item was scheduled as upcoming for the next billing period.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SubscriptionItemUpcomingEnvelope'
+    SubscriptionItemEnded:
+      name: SubscriptionItemEnded
+      title: subscriptionItem.ended
+      summary: A Subscription Item has ended.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SubscriptionItemEndedEnvelope'
+    SubscriptionItemAbandoned:
+      name: SubscriptionItemAbandoned
+      title: subscriptionItem.abandoned
+      summary: A Subscription Item was abandoned.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SubscriptionItemAbandonedEnvelope'
+    SubscriptionItemIncomplete:
+      name: SubscriptionItemIncomplete
+      title: subscriptionItem.incomplete
+      summary: A Subscription Item is incomplete (checkout started, payment not yet processed).
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SubscriptionItemIncompleteEnvelope'
+    SubscriptionItemPastDue:
+      name: SubscriptionItemPastDue
+      title: subscriptionItem.pastDue
+      summary: A Subscription Item is past due after a failed recurring charge.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SubscriptionItemPastDueEnvelope'
+    SubscriptionItemFreeTrialEnding:
+      name: SubscriptionItemFreeTrialEnding
+      title: subscriptionItem.freeTrialEnding
+      summary: A Subscription Item free trial is ending soon (sent three days before, or immediately for shorter trials).
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/SubscriptionItemFreeTrialEndingEnvelope'
+
+    PaymentAttemptCreated:
+      name: PaymentAttemptCreated
+      title: paymentAttempt.created
+      summary: A payment attempt was created with pending status.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/PaymentAttemptCreatedEnvelope'
+    PaymentAttemptUpdated:
+      name: PaymentAttemptUpdated
+      title: paymentAttempt.updated
+      summary: A payment attempt transitioned to paid or failed status.
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/SvixSignedEnvelope'
+      payload:
+        $ref: '#/components/schemas/PaymentAttemptUpdatedEnvelope'
+
+  schemas:
+    Envelope:
+      type: object
+      description: |
+        Shared Clerk webhook envelope. Concrete event payloads extend this schema
+        by constraining `type` and the shape of `data`.
+      required:
+        - data
+        - object
+        - type
+        - timestamp
+        - instance_id
+      properties:
+        data:
+          type: object
+          description: Event-specific payload. The shape depends on `type`.
+        object:
+          type: string
+          const: event
+          description: Always set to `event`.
+        type:
+          type: string
+          description: The event type that triggered the webhook (for example, `user.created`).
+        timestamp:
+          type: integer
+          format: int64
+          description: Timestamp in milliseconds of when the event occurred.
+          example: 1654012591835
+        instance_id:
+          type: string
+          description: Identifier of the Clerk instance that emitted the event.
+          example: ins_123
+      additionalProperties: false
+
+    # --- Resource data objects (loosely typed; refer to Clerk Backend API for
+    #     full property definitions). These mirror the Clerk Backend API
+    #     reference at https://clerk.com/docs/reference/backend-api. ---
+
+    UserData:
+      type: object
+      description: |
+        Clerk User object. Full schema documented under the Clerk Backend API
+        (`/users` endpoints).
+      properties:
+        id:
+          type: string
+          example: user_29w83sxmDNGwOuEthce5gg56FcC
+        object:
+          type: string
+          const: user
+        external_id:
+          type: [string, 'null']
+        first_name:
+          type: [string, 'null']
+        last_name:
+          type: [string, 'null']
+        username:
+          type: [string, 'null']
+        primary_email_address_id:
+          type: [string, 'null']
+        primary_phone_number_id:
+          type: [string, 'null']
+        primary_web3_wallet_id:
+          type: [string, 'null']
+        email_addresses:
+          type: array
+          items:
+            type: object
+        phone_numbers:
+          type: array
+          items:
+            type: object
+        web3_wallets:
+          type: array
+          items:
+            type: object
+        external_accounts:
+          type: array
+          items:
+            type: object
+        image_url:
+          type: string
+        profile_image_url:
+          type: string
+        password_enabled:
+          type: boolean
+        two_factor_enabled:
+          type: boolean
+        last_sign_in_at:
+          type: [integer, 'null']
+          format: int64
+        created_at:
+          type: integer
+          format: int64
+        updated_at:
+          type: integer
+          format: int64
+        public_metadata:
+          type: object
+        private_metadata:
+          type: object
+        unsafe_metadata:
+          type: object
+      additionalProperties: true
+
+    DeletedObject:
+      type: object
+      description: Tombstone payload Clerk delivers when a resource is deleted.
+      required:
+        - object
+        - id
+        - deleted
+      properties:
+        object:
+          type: string
+          description: Tombstone object marker (for example, `user`, `organization`, `organization_membership`).
+        id:
+          type: string
+        deleted:
+          type: boolean
+          const: true
+        slug:
+          type: string
+          description: Slug of the resource when applicable (organizations).
+      additionalProperties: true
+
+    SessionData:
+      type: object
+      description: Clerk Session object.
+      properties:
+        id:
+          type: string
+          example: sess_29w83sxmDNGwOuEthce5gg56FcC
+        object:
+          type: string
+          const: session
+        client_id:
+          type: string
+        user_id:
+          type: string
+        status:
+          type: string
+          description: Current session status (for example, `active`, `ended`, `revoked`, `removed`).
+        last_active_at:
+          type: integer
+          format: int64
+        expire_at:
+          type: integer
+          format: int64
+        abandon_at:
+          type: integer
+          format: int64
+        created_at:
+          type: integer
+          format: int64
+        updated_at:
+          type: integer
+          format: int64
+      additionalProperties: true
+
+    OrganizationData:
+      type: object
+      description: Clerk Organization object.
+      properties:
+        id:
+          type: string
+        object:
+          type: string
+          const: organization
+        name:
+          type: string
+        slug:
+          type: string
+        image_url:
+          type: string
+        logo_url:
+          type: [string, 'null']
+        has_image:
+          type: boolean
+        created_by:
+          type: string
+        members_count:
+          type: integer
+        max_allowed_memberships:
+          type: integer
+        admin_delete_enabled:
+          type: boolean
+        public_metadata:
+          type: object
+        private_metadata:
+          type: object
+        created_at:
+          type: integer
+          format: int64
+        updated_at:
+          type: integer
+          format: int64
+      additionalProperties: true
+
+    OrganizationMembershipData:
+      type: object
+      description: Clerk OrganizationMembership object.
+      properties:
+        id:
+          type: string
+        object:
+          type: string
+          const: organization_membership
+        role:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+        organization:
+          $ref: '#/components/schemas/OrganizationData'
+        public_user_data:
+          type: object
+        public_metadata:
+          type: object
+        private_metadata:
+          type: object
+        created_at:
+          type: integer
+          format: int64
+        updated_at:
+          type: integer
+          format: int64
+      additionalProperties: true
+
+    OrganizationInvitationData:
+      type: object
+      description: Clerk OrganizationInvitation object.
+      properties:
+        id:
+          type: string
+        object:
+          type: string
+          const: organization_invitation
+        email_address:
+          type: string
+          format: email
+        organization_id:
+          type: string
+        role:
+          type: string
+        status:
+          type: string
+          description: Invitation status (for example, `pending`, `accepted`, `revoked`).
+        public_metadata:
+          type: object
+        private_metadata:
+          type: object
+        created_at:
+          type: integer
+          format: int64
+        updated_at:
+          type: integer
+          format: int64
+      additionalProperties: true
+
+    RoleData:
+      type: object
+      description: Clerk custom Role object.
+      properties:
+        id:
+          type: string
+        object:
+          type: string
+          const: role
+        key:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: object
+        is_creator_eligible:
+          type: boolean
+        created_at:
+          type: integer
+          format: int64
+        updated_at:
+          type: integer
+          format: int64
+      additionalProperties: true
+
+    PermissionData:
+      type: object
+      description: Clerk custom Permission object.
+      properties:
+        id:
+          type: string
+        object:
+          type: string
+          const: permission
+        key:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        created_at:
+          type: integer
+          format: int64
+        updated_at:
+          type: integer
+          format: int64
+      additionalProperties: true
+
+    EmailData:
+      type: object
+      description: |
+        Clerk Email object. Delivered as `email.created` when Clerk email delivery
+        is disabled so the customer can deliver the message themselves. Includes
+        `otp_code` for verification emails when applicable.
+      properties:
+        id:
+          type: string
+        object:
+          type: string
+          const: email
+        from_email_name:
+          type: string
+        to_email_address:
+          type: string
+          format: email
+        email_address_id:
+          type: [string, 'null']
+        user_id:
+          type: [string, 'null']
+        subject:
+          type: string
+        body:
+          type: string
+        body_plain:
+          type: string
+        status:
+          type: string
+        slug:
+          type: string
+          description: Identifies the kind of email (for example, `verification_code`, `magic_link`, `reset_password_code`).
+        data:
+          type: object
+          description: Template data including fields like `otp_code` when applicable.
+        delivered_by_clerk:
+          type: boolean
+        created_at:
+          type: integer
+          format: int64
+        updated_at:
+          type: integer
+          format: int64
+      additionalProperties: true
+
+    SmsData:
+      type: object
+      description: |
+        Clerk SMS object. Delivered as `sms.created` when Clerk SMS delivery is
+        disabled so the customer can deliver the message themselves.
+      properties:
+        id:
+          type: string
+        object:
+          type: string
+          const: sms_message
+        from_phone_number:
+          type: string
+        to_phone_number:
+          type: string
+        phone_number_id:
+          type: [string, 'null']
+        user_id:
+          type: [string, 'null']
+        message:
+          type: string
+        status:
+          type: string
+        slug:
+          type: string
+          description: Identifies the kind of SMS (for example, `verification_code`).
+        data:
+          type: object
+          description: Template data including fields like `otp_code` when applicable.
+        delivered_by_clerk:
+          type: boolean
+        created_at:
+          type: integer
+          format: int64
+        updated_at:
+          type: integer
+          format: int64
+      additionalProperties: true
+
+    SubscriptionData:
+      type: object
+      description: Clerk Billing Subscription (top-level) object.
+      properties:
+        id:
+          type: string
+        object:
+          type: string
+          const: commerce_subscription
+        payer_id:
+          type: string
+        status:
+          type: string
+          description: Subscription status (for example, `active`, `past_due`).
+        subscription_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionItemData'
+        active_at:
+          type: [integer, 'null']
+          format: int64
+        past_due_at:
+          type: [integer, 'null']
+          format: int64
+        next_payment:
+          type: object
+        created_at:
+          type: integer
+          format: int64
+        updated_at:
+          type: integer
+          format: int64
+      additionalProperties: true
+
+    SubscriptionItemData:
+      type: object
+      description: Clerk Billing Subscription Item object.
+      properties:
+        id:
+          type: string
+        object:
+          type: string
+          const: commerce_subscription_item
+        plan_id:
+          type: string
+        plan:
+          type: object
+        payer_id:
+          type: string
+        status:
+          type: string
+          description: |
+            One of `active`, `canceled`, `upcoming`, `ended`, `abandoned`,
+            `incomplete`, `past_due`.
+        period_start:
+          type: [integer, 'null']
+          format: int64
+        period_end:
+          type: [integer, 'null']
+          format: int64
+        canceled_at:
+          type: [integer, 'null']
+          format: int64
+        ended_at:
+          type: [integer, 'null']
+          format: int64
+        is_free_trial:
+          type: boolean
+        created_at:
+          type: integer
+          format: int64
+        updated_at:
+          type: integer
+          format: int64
+      additionalProperties: true
+
+    PaymentAttemptData:
+      type: object
+      description: Clerk Billing Payment Attempt object.
+      properties:
+        id:
+          type: string
+        object:
+          type: string
+          const: commerce_payment_attempt
+        payer_id:
+          type: string
+        subscription_item_id:
+          type: [string, 'null']
+        type:
+          type: string
+          enum:
+            - checkout
+            - recurring
+          description: |
+            Indicates whether the attempt was for a checkout or a recurring
+            subscription item charge.
+        status:
+          type: string
+          description: One of `pending`, `paid`, `failed`.
+        amount:
+          type: object
+          description: Amount object including value and currency.
+        failed_at:
+          type: [integer, 'null']
+          format: int64
+        paid_at:
+          type: [integer, 'null']
+          format: int64
+        created_at:
+          type: integer
+          format: int64
+        updated_at:
+          type: integer
+          format: int64
+      additionalProperties: true
+
+    # --- Concrete envelope schemas per event type. Each binds `type` to a const
+    #     and shapes `data` to the matching resource schema. ---
+
+    UserCreatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: user.created
+            data:
+              $ref: '#/components/schemas/UserData'
+    UserUpdatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: user.updated
+            data:
+              $ref: '#/components/schemas/UserData'
+    UserDeletedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: user.deleted
+            data:
+              $ref: '#/components/schemas/DeletedObject'
+
+    SessionCreatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: session.created
+            data:
+              $ref: '#/components/schemas/SessionData'
+    SessionEndedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: session.ended
+            data:
+              $ref: '#/components/schemas/SessionData'
+    SessionRemovedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: session.removed
+            data:
+              $ref: '#/components/schemas/SessionData'
+    SessionRevokedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: session.revoked
+            data:
+              $ref: '#/components/schemas/SessionData'
+
+    OrganizationCreatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: organization.created
+            data:
+              $ref: '#/components/schemas/OrganizationData'
+    OrganizationUpdatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: organization.updated
+            data:
+              $ref: '#/components/schemas/OrganizationData'
+    OrganizationDeletedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: organization.deleted
+            data:
+              $ref: '#/components/schemas/DeletedObject'
+
+    OrganizationMembershipCreatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: organizationMembership.created
+            data:
+              $ref: '#/components/schemas/OrganizationMembershipData'
+    OrganizationMembershipUpdatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: organizationMembership.updated
+            data:
+              $ref: '#/components/schemas/OrganizationMembershipData'
+    OrganizationMembershipDeletedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: organizationMembership.deleted
+            data:
+              $ref: '#/components/schemas/OrganizationMembershipData'
+
+    OrganizationInvitationCreatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: organizationInvitation.created
+            data:
+              $ref: '#/components/schemas/OrganizationInvitationData'
+    OrganizationInvitationAcceptedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: organizationInvitation.accepted
+            data:
+              $ref: '#/components/schemas/OrganizationInvitationData'
+    OrganizationInvitationRevokedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: organizationInvitation.revoked
+            data:
+              $ref: '#/components/schemas/OrganizationInvitationData'
+
+    RoleCreatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: role.created
+            data:
+              $ref: '#/components/schemas/RoleData'
+    RoleUpdatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: role.updated
+            data:
+              $ref: '#/components/schemas/RoleData'
+    RoleDeletedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: role.deleted
+            data:
+              $ref: '#/components/schemas/DeletedObject'
+
+    PermissionCreatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: permission.created
+            data:
+              $ref: '#/components/schemas/PermissionData'
+    PermissionUpdatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: permission.updated
+            data:
+              $ref: '#/components/schemas/PermissionData'
+    PermissionDeletedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: permission.deleted
+            data:
+              $ref: '#/components/schemas/DeletedObject'
+
+    EmailCreatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: email.created
+            data:
+              $ref: '#/components/schemas/EmailData'
+    SmsCreatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: sms.created
+            data:
+              $ref: '#/components/schemas/SmsData'
+
+    SubscriptionCreatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: subscription.created
+            data:
+              $ref: '#/components/schemas/SubscriptionData'
+    SubscriptionUpdatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: subscription.updated
+            data:
+              $ref: '#/components/schemas/SubscriptionData'
+    SubscriptionActiveEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: subscription.active
+            data:
+              $ref: '#/components/schemas/SubscriptionData'
+    SubscriptionPastDueEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: subscription.pastDue
+            data:
+              $ref: '#/components/schemas/SubscriptionData'
+
+    SubscriptionItemUpdatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: subscriptionItem.updated
+            data:
+              $ref: '#/components/schemas/SubscriptionItemData'
+    SubscriptionItemActiveEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: subscriptionItem.active
+            data:
+              $ref: '#/components/schemas/SubscriptionItemData'
+    SubscriptionItemCanceledEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: subscriptionItem.canceled
+            data:
+              $ref: '#/components/schemas/SubscriptionItemData'
+    SubscriptionItemUpcomingEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: subscriptionItem.upcoming
+            data:
+              $ref: '#/components/schemas/SubscriptionItemData'
+    SubscriptionItemEndedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: subscriptionItem.ended
+            data:
+              $ref: '#/components/schemas/SubscriptionItemData'
+    SubscriptionItemAbandonedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: subscriptionItem.abandoned
+            data:
+              $ref: '#/components/schemas/SubscriptionItemData'
+    SubscriptionItemIncompleteEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: subscriptionItem.incomplete
+            data:
+              $ref: '#/components/schemas/SubscriptionItemData'
+    SubscriptionItemPastDueEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: subscriptionItem.pastDue
+            data:
+              $ref: '#/components/schemas/SubscriptionItemData'
+    SubscriptionItemFreeTrialEndingEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: subscriptionItem.freeTrialEnding
+            data:
+              $ref: '#/components/schemas/SubscriptionItemData'
+
+    PaymentAttemptCreatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: paymentAttempt.created
+            data:
+              $ref: '#/components/schemas/PaymentAttemptData'
+    PaymentAttemptUpdatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          properties:
+            type:
+              type: string
+              const: paymentAttempt.updated
+            data:
+              $ref: '#/components/schemas/PaymentAttemptData'

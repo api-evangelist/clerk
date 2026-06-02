@@ -24,7 +24,7 @@ tags:
   - Organizations
   - Billing
 created: '2026-05-23'
-modified: '2026-05-23'
+modified: '2026-05-30'
 specificationVersion: '0.19'
 apis:
   - aid: clerk:backend-api
@@ -81,6 +81,8 @@ apis:
     properties:
       - type: Documentation
         url: https://clerk.com/docs/integrations/webhooks/overview
+      - type: AsyncAPI
+        url: https://raw.githubusercontent.com/api-evangelist/clerk/refs/heads/main/asyncapi/clerk-webhooks-asyncapi.yml
   - aid: clerk:javascript
     name: Clerk JavaScript SDK
     description: >-
