@@ -1,0 +1,912 @@
+"""
+Clerk GraphQL Schema (Conceptual)
+
+Clerk's public API is REST-based (https://api.clerk.com/v1).
+This schema is a conceptual GraphQL representation derived from Clerk's
+Backend API resource types, as documented at:
+  https://clerk.com/docs/reference/backend-api
+
+No native GraphQL endpoint is publicly available as of June 2026.
+This schema models the core Clerk data model to enable tooling,
+code generation, and integration design work.
+"""
+
+scalar DateTime
+scalar JSON
+
+# ─────────────────────────────────────────────
+# Enums
+# ─────────────────────────────────────────────
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+  LOCKED
+}
+
+enum SessionStatus {
+  ACTIVE
+  REVOKED
+  ENDED
+  EXPIRED
+  REMOVED
+  ABANDONED
+}
+
+enum OrganizationMembershipRole {
+  ADMIN
+  BASIC_MEMBER
+  GUEST_MEMBER
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+}
+
+enum IdentifierType {
+  EMAIL_ADDRESS
+  PHONE_NUMBER
+  WEB3_WALLET
+  USERNAME
+  OAUTH
+  SAML
+  PASSKEY
+}
+
+enum OAuthProvider {
+  GOOGLE
+  GITHUB
+  FACEBOOK
+  MICROSOFT
+  APPLE
+  TWITTER
+  LINKEDIN
+  DISCORD
+  TWITCH
+  GITLAB
+  BITBUCKET
+  DROPBOX
+  NOTION
+  SLACK
+  SPOTIFY
+  LINE
+  HUBSPOT
+  TIKTOK
+  COINBASE
+  XERO
+}
+
+enum SignInStrategy {
+  PASSWORD
+  PASSKEY
+  EMAIL_CODE
+  EMAIL_LINK
+  PHONE_CODE
+  TOTP
+  BACKUP_CODE
+  OAUTH
+  SAML
+  TICKET
+  RESET_PASSWORD_EMAIL_CODE
+  RESET_PASSWORD_PHONE_CODE
+}
+
+enum SignInStatus {
+  NEEDS_IDENTIFIER
+  NEEDS_FACTOR_ONE
+  NEEDS_FACTOR_TWO
+  COMPLETE
+}
+
+enum SignUpStatus {
+  MISSING_REQUIREMENTS
+  ABANDONED
+  COMPLETE
+}
+
+enum TokenAlgorithm {
+  RS256
+  RS384
+  RS512
+}
+
+enum PermissionType {
+  USER
+  SYSTEM
+}
+
+# ─────────────────────────────────────────────
+# Core identity types
+# ─────────────────────────────────────────────
+
+"""A verified or unverified email address attached to a user."""
+type EmailAddress {
+  id: ID!
+  emailAddress: String!
+  verification: Verification
+  linkedTo: [IdentificationLink!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A verified or unverified phone number attached to a user."""
+type PhoneNumber {
+  id: ID!
+  phoneNumber: String!
+  reservedForSecondFactor: Boolean!
+  defaultSecondFactor: Boolean!
+  verification: Verification
+  linkedTo: [IdentificationLink!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""An external OAuth account linked to a user."""
+type ExternalAccount {
+  id: ID!
+  provider: OAuthProvider!
+  identificationId: ID!
+  externalId: String!
+  approvedScopes: String!
+  emailAddress: String
+  firstName: String
+  lastName: String
+  avatarUrl: String
+  username: String
+  publicMetadata: JSON!
+  label: String
+  verification: Verification
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""Verification state for an identifier."""
+type Verification {
+  status: String!
+  strategy: String!
+  attempts: Int
+  expireAt: DateTime
+  verifiedAtClient: String
+  nonce: String
+  externalVerificationRedirectURL: String
+  error: VerificationError
+}
+
+type VerificationError {
+  code: String!
+  longMessage: String!
+  message: String!
+}
+
+"""A link between an identifier and an external account or provider."""
+type IdentificationLink {
+  id: ID!
+  type: IdentifierType!
+}
+
+"""A Web3 wallet address linked to a user."""
+type Web3Wallet {
+  id: ID!
+  web3Wallet: String!
+  verification: Verification
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A passkey credential registered by a user."""
+type Passkey {
+  id: ID!
+  name: String
+  credentialId: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  lastUsedAt: DateTime
+  verification: Verification
+}
+
+# ─────────────────────────────────────────────
+# User
+# ─────────────────────────────────────────────
+
+"""A Clerk user account."""
+type User {
+  id: ID!
+  externalId: String
+  primaryEmailAddressId: ID
+  primaryEmailAddress: EmailAddress
+  primaryPhoneNumberId: ID
+  primaryPhoneNumber: PhoneNumber
+  primaryWeb3WalletId: ID
+  primaryWeb3Wallet: Web3Wallet
+  username: String
+  firstName: String
+  lastName: String
+  fullName: String
+  imageUrl: String!
+  hasImage: Boolean!
+  emailAddresses: [EmailAddress!]!
+  phoneNumbers: [PhoneNumber!]!
+  web3Wallets: [Web3Wallet!]!
+  externalAccounts: [ExternalAccount!]!
+  passkeys: [Passkey!]!
+  samlAccounts: [SamlAccount!]!
+  passwordEnabled: Boolean!
+  twoFactorEnabled: Boolean!
+  totpEnabled: Boolean!
+  backupCodeEnabled: Boolean!
+  banned: Boolean!
+  locked: Boolean!
+  lockoutExpiresInSeconds: Int
+  verificationAttemptsRemaining: Int
+  publicMetadata: JSON!
+  privateMetadata: JSON!
+  unsafeMetadata: JSON!
+  lastSignInAt: DateTime
+  lastActiveAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  organizationMemberships: [OrganizationMembership!]!
+}
+
+"""Paginated list of users."""
+type UserList {
+  data: [User!]!
+  totalCount: Int!
+}
+
+# ─────────────────────────────────────────────
+# Session & Client
+# ─────────────────────────────────────────────
+
+"""An active or historical user session."""
+type Session {
+  id: ID!
+  clientId: ID!
+  userId: ID!
+  user: User
+  status: SessionStatus!
+  expireAt: DateTime!
+  abandonAt: DateTime!
+  lastActiveAt: DateTime!
+  lastActiveOrganizationId: ID
+  actor: JSON
+  publicUserData: PublicUserData
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""Public user data embedded in a session token."""
+type PublicUserData {
+  firstName: String
+  lastName: String
+  imageUrl: String!
+  hasImage: Boolean!
+  identifier: String!
+  userId: ID!
+}
+
+"""A Clerk client context (browser/device)."""
+type Client {
+  id: ID!
+  sessionIds: [ID!]!
+  sessions: [Session!]!
+  signInId: ID
+  signUpId: ID
+  lastActiveSessionId: ID
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# ─────────────────────────────────────────────
+# Sign-in / Sign-up flows
+# ─────────────────────────────────────────────
+
+"""An in-progress sign-in attempt."""
+type SignIn {
+  id: ID!
+  status: SignInStatus!
+  supportedIdentifiers: [IdentifierType!]!
+  supportedFirstFactors: [SignInFactor!]!
+  supportedSecondFactors: [SignInFactor!]
+  firstFactorVerification: Verification
+  secondFactorVerification: Verification
+  identifier: String
+  userData: PublicUserData
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type SignInFactor {
+  strategy: SignInStrategy!
+  primary: Boolean
+  default: Boolean
+  emailAddressId: ID
+  phoneNumberId: ID
+  web3WalletId: ID
+  safeIdentifier: String
+}
+
+"""An in-progress sign-up attempt."""
+type SignUp {
+  id: ID!
+  status: SignUpStatus!
+  requiredFields: [String!]!
+  optionalFields: [String!]!
+  missingFields: [String!]!
+  unverifiedFields: [String!]!
+  verifications: SignUpVerifications
+  username: String
+  firstName: String
+  lastName: String
+  emailAddress: String
+  phoneNumber: String
+  legalAcceptedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type SignUpVerifications {
+  emailAddress: Verification
+  phoneNumber: Verification
+  externalAccount: Verification
+  web3Wallet: Verification
+}
+
+# ─────────────────────────────────────────────
+# Organizations
+# ─────────────────────────────────────────────
+
+"""A Clerk organization (B2B / multi-tenant)."""
+type Organization {
+  id: ID!
+  name: String!
+  slug: String
+  imageUrl: String!
+  hasImage: Boolean!
+  membersCount: Int!
+  pendingInvitationsCount: Int!
+  maxAllowedMemberships: Int!
+  adminDeleteEnabled: Boolean!
+  publicMetadata: JSON!
+  privateMetadata: JSON!
+  createdBy: ID
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  memberships: [OrganizationMembership!]!
+  invitations: [OrganizationInvitation!]!
+  domains: [OrganizationDomain!]!
+}
+
+"""Paginated list of organizations."""
+type OrganizationList {
+  data: [Organization!]!
+  totalCount: Int!
+}
+
+"""A user's membership in an organization."""
+type OrganizationMembership {
+  id: ID!
+  role: String!
+  permissions: [String!]!
+  publicMetadata: JSON!
+  privateMetadata: JSON!
+  organization: Organization!
+  publicUserData: PublicUserData
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""An invitation to join an organization."""
+type OrganizationInvitation {
+  id: ID!
+  emailAddress: String!
+  role: String!
+  organizationId: ID!
+  status: InvitationStatus!
+  publicMetadata: JSON!
+  privateMetadata: JSON!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A verified domain associated with an organization."""
+type OrganizationDomain {
+  id: ID!
+  organizationId: ID!
+  name: String!
+  enrollmentMode: String!
+  affiliationEmailAddress: String
+  verification: Verification
+  totalPendingInvitations: Int!
+  totalPendingSuggestions: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# ─────────────────────────────────────────────
+# Roles and Permissions
+# ─────────────────────────────────────────────
+
+"""A permission that can be assigned to roles."""
+type Permission {
+  id: ID!
+  key: String!
+  name: String!
+  description: String
+  type: PermissionType!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A role that can be assigned to organization members."""
+type Role {
+  id: ID!
+  key: String!
+  name: String!
+  description: String
+  isCreatorEligible: Boolean!
+  permissions: [Permission!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# ─────────────────────────────────────────────
+# Tokens and JWT Templates
+# ─────────────────────────────────────────────
+
+"""A signed JWT for a user session."""
+type Token {
+  jwt: String!
+}
+
+"""A template for customizing JWT claims."""
+type JWTTemplate {
+  id: ID!
+  name: String!
+  claims: JSON!
+  lifetime: Int!
+  allowedClockSkew: Int!
+  customSigningKey: Boolean!
+  signingAlgorithm: TokenAlgorithm
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A short-lived sign-in token (magic link / ticket)."""
+type SignInToken {
+  id: ID!
+  userId: ID!
+  token: String
+  status: String!
+  url: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""An actor token for impersonation flows."""
+type ActorToken {
+  id: ID!
+  userId: ID!
+  actor: JSON!
+  token: String
+  url: String
+  status: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""An OAuth access token for an external account."""
+type OAuthToken {
+  externalAccountId: ID!
+  provider: OAuthProvider!
+  token: String!
+  scopes: [String!]!
+}
+
+# ─────────────────────────────────────────────
+# Allow / Block lists
+# ─────────────────────────────────────────────
+
+"""An email address or domain on the allowlist."""
+type AllowlistIdentifier {
+  id: ID!
+  identifier: String!
+  identifierType: IdentifierType!
+  invitationId: ID
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""An email address or domain on the blocklist."""
+type BlocklistIdentifier {
+  id: ID!
+  identifier: String!
+  identifierType: IdentifierType!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# ─────────────────────────────────────────────
+# SAML
+# ─────────────────────────────────────────────
+
+"""A SAML connection for enterprise SSO."""
+type SamlConnection {
+  id: ID!
+  name: String!
+  domain: String!
+  idpEntityId: String
+  idpSsoUrl: String
+  idpCertificate: String
+  idpMetadataUrl: String
+  idpMetadata: String
+  acsUrl: String!
+  spEntityId: String!
+  spMetadataUrl: String!
+  active: Boolean!
+  provider: String!
+  userCount: Int!
+  syncUserAttributes: Boolean!
+  allowSubdomains: Boolean!
+  allowIdpInitiated: Boolean!
+  disableAdditionalIdentifications: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A SAML account linked to a user."""
+type SamlAccount {
+  id: ID!
+  provider: String!
+  providerUserId: String
+  active: Boolean!
+  emailAddress: String!
+  firstName: String
+  lastName: String
+  verification: Verification
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# ─────────────────────────────────────────────
+# Instance / Application configuration
+# ─────────────────────────────────────────────
+
+"""Top-level instance settings for a Clerk application."""
+type ApplicationConfig {
+  id: ID!
+  name: String!
+  imageUrl: String
+  authConfig: AuthConfig!
+  userSettings: UserSettings!
+  organizationSettings: OrganizationSettings!
+}
+
+type AuthConfig {
+  singleSessionMode: Boolean!
+  cookielessDev: Boolean!
+  urlBasedSessionSyncing: Boolean!
+}
+
+type UserSettings {
+  attributes: JSON!
+  social: JSON!
+  saml: JSON!
+  passwordSettings: PasswordSettings!
+  signInSettings: JSON!
+  signUpSettings: JSON!
+  usernameSettings: JSON!
+}
+
+type PasswordSettings {
+  disableIbp: Boolean!
+  minLength: Int!
+  maxLength: Int!
+  requireSpecialChar: Boolean!
+  requireNumbers: Boolean!
+  requireUppercase: Boolean!
+  requireLowercase: Boolean!
+  showZxcvbn: Boolean!
+  minZxcvbnStrength: Int!
+}
+
+type OrganizationSettings {
+  enabled: Boolean!
+  maxAllowedMemberships: Int!
+  creatorRole: String!
+  domains: JSON!
+}
+
+"""A publishable key identifying a Clerk frontend instance."""
+type PublishableKey {
+  id: ID!
+  name: String
+  secret: String!
+  instance: String!
+  createdAt: DateTime!
+}
+
+"""A custom domain for a Clerk instance."""
+type Domain {
+  id: ID!
+  name: String!
+  isPrimary: Boolean!
+  frontendApiUrl: String!
+  accountsPortalUrl: String
+  proxyUrl: String
+  developmentOrigin: String
+  cnameEnforcement: JSON!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""Proxy configuration for routing Clerk traffic."""
+type ProxyConfig {
+  id: ID!
+  domainId: ID!
+  proxyUrl: String!
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A redirect URL registered for OAuth or magic-link flows."""
+type Redirect {
+  id: ID!
+  url: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# ─────────────────────────────────────────────
+# Webhook / Event types (summary)
+# ─────────────────────────────────────────────
+
+"""A Svix webhook endpoint registered on a Clerk instance."""
+type WebhookEndpoint {
+  id: ID!
+  url: String!
+  description: String
+  signingSecret: String
+  filterTypes: [String!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# ─────────────────────────────────────────────
+# Root types
+# ─────────────────────────────────────────────
+
+type Query {
+  # Users
+  user(id: ID!): User
+  users(
+    limit: Int
+    offset: Int
+    emailAddress: [String!]
+    phoneNumber: [String!]
+    username: [String!]
+    externalId: [String!]
+    orderBy: String
+    query: String
+    banned: Boolean
+    locked: Boolean
+    organizationId: [ID!]
+    lastActiveAtSince: DateTime
+    createdAtSince: DateTime
+  ): UserList!
+  userCount: Int!
+  usersOauthAccessToken(userId: ID!, provider: OAuthProvider!): [OAuthToken!]!
+  userOrganizationMemberships(userId: ID!, limit: Int, offset: Int): [OrganizationMembership!]!
+
+  # Sessions
+  session(id: ID!): Session
+  sessions(
+    clientId: ID
+    userId: ID
+    status: SessionStatus
+    limit: Int
+    offset: Int
+  ): [Session!]!
+
+  # Organizations
+  organization(id: ID, slug: String): Organization
+  organizations(limit: Int, offset: Int, query: String, orderBy: String): OrganizationList!
+  organizationMemberships(organizationId: ID!, limit: Int, offset: Int): [OrganizationMembership!]!
+  organizationInvitations(organizationId: ID!, status: InvitationStatus, limit: Int, offset: Int): [OrganizationInvitation!]!
+
+  # Roles and Permissions
+  roles(limit: Int, offset: Int): [Role!]!
+  permissions(limit: Int, offset: Int): [Permission!]!
+
+  # Allow/Block lists
+  allowlistIdentifiers: [AllowlistIdentifier!]!
+  blocklistIdentifiers(limit: Int, offset: Int): [BlocklistIdentifier!]!
+
+  # JWT Templates
+  jwtTemplates: [JWTTemplate!]!
+  jwtTemplate(id: ID!): JWTTemplate
+
+  # SAML
+  samlConnections(limit: Int, offset: Int): [SamlConnection!]!
+  samlConnection(id: ID!): SamlConnection
+
+  # Instance configuration
+  applicationConfig: ApplicationConfig
+  domains: [Domain!]!
+  domain(id: ID!): Domain
+  redirects: [Redirect!]!
+
+  # Webhook endpoints
+  webhookEndpoints: [WebhookEndpoint!]!
+  webhookEndpoint(id: ID!): WebhookEndpoint
+}
+
+type Mutation {
+  # Users
+  createUser(
+    externalId: String
+    firstName: String
+    lastName: String
+    username: String
+    password: String
+    emailAddress: [String!]
+    phoneNumber: [String!]
+    publicMetadata: JSON
+    privateMetadata: JSON
+    unsafeMetadata: JSON
+    skipPasswordChecks: Boolean
+    skipPasswordRequirement: Boolean
+    totpSecret: String
+    backupCodes: [String!]
+    createdAt: DateTime
+  ): User!
+
+  updateUser(
+    id: ID!
+    externalId: String
+    firstName: String
+    lastName: String
+    username: String
+    password: String
+    primaryEmailAddressId: ID
+    primaryPhoneNumberId: ID
+    primaryWeb3WalletId: ID
+    publicMetadata: JSON
+    privateMetadata: JSON
+    unsafeMetadata: JSON
+    profileImageId: ID
+    totpSecret: String
+    backupCodes: [String!]
+    skipPasswordChecks: Boolean
+    signOutOfOtherSessions: Boolean
+    banned: Boolean
+    locked: Boolean
+    deleteSelfEnabled: Boolean
+    createOrganizationEnabled: Boolean
+    createOrganizationsLimit: Int
+  ): User!
+
+  deleteUser(id: ID!): DeleteResponse!
+  banUser(id: ID!): User!
+  unbanUser(id: ID!): User!
+  lockUser(id: ID!): User!
+  unlockUser(id: ID!): User!
+  deleteUserProfileImage(id: ID!): User!
+  deleteUserPasskey(userId: ID!, passkeyId: ID!): DeleteResponse!
+  deleteUserExternalAccount(userId: ID!, externalAccountId: ID!): DeleteResponse!
+
+  # Sessions
+  revokeSession(id: ID!): Session!
+  verifySession(id: ID!, token: String!): Session!
+  createSessionToken(sessionId: ID!, expiresInSeconds: Int): Token!
+  revokeActiveSessions(userId: ID!): [Session!]!
+
+  # Organizations
+  createOrganization(
+    name: String!
+    slug: String
+    createdBy: ID!
+    maxAllowedMemberships: Int
+    publicMetadata: JSON
+    privateMetadata: JSON
+  ): Organization!
+
+  updateOrganization(
+    id: ID!
+    name: String
+    slug: String
+    maxAllowedMemberships: Int
+    adminDeleteEnabled: Boolean
+    publicMetadata: JSON
+    privateMetadata: JSON
+  ): Organization!
+
+  deleteOrganization(id: ID!): DeleteResponse!
+  deleteOrganizationLogo(id: ID!): Organization!
+
+  createOrganizationMembership(organizationId: ID!, userId: ID!, role: String!): OrganizationMembership!
+  updateOrganizationMembership(organizationId: ID!, userId: ID!, role: String!): OrganizationMembership!
+  deleteOrganizationMembership(organizationId: ID!, userId: ID!): OrganizationMembership!
+
+  createOrganizationInvitation(
+    organizationId: ID!
+    emailAddress: String!
+    role: String!
+    redirectUrl: String
+    publicMetadata: JSON
+    privateMetadata: JSON
+  ): OrganizationInvitation!
+
+  revokeOrganizationInvitation(organizationId: ID!, invitationId: ID!, requestingUserId: ID!): OrganizationInvitation!
+  bulkCreateOrganizationInvitations(organizationId: ID!, invitations: [OrganizationInvitationInput!]!): [OrganizationInvitation!]!
+
+  createOrganizationDomain(organizationId: ID!, name: String!, enrollmentMode: String!, verified: Boolean): OrganizationDomain!
+  updateOrganizationDomain(organizationId: ID!, domainId: ID!, enrollmentMode: String!, verified: Boolean): OrganizationDomain!
+  deleteOrganizationDomain(organizationId: ID!, domainId: ID!): DeleteResponse!
+
+  # Sign-in tokens
+  createSignInToken(userId: ID!, expiresInSeconds: Int): SignInToken!
+  revokeSignInToken(id: ID!): SignInToken!
+
+  # Actor tokens
+  createActorToken(userId: ID!, actor: JSON!, expiresInSeconds: Int, sessionMaxDurationInSeconds: Int): ActorToken!
+  revokeActorToken(id: ID!): ActorToken!
+
+  # Allow/Block lists
+  createAllowlistIdentifier(identifier: String!, notify: Boolean): AllowlistIdentifier!
+  deleteAllowlistIdentifier(id: ID!): DeleteResponse!
+  createBlocklistIdentifier(identifier: String!): BlocklistIdentifier!
+  deleteBlocklistIdentifier(id: ID!): DeleteResponse!
+
+  # JWT Templates
+  createJwtTemplate(name: String!, claims: JSON!, lifetime: Int, allowedClockSkew: Int, customSigningKey: Boolean, signingAlgorithm: TokenAlgorithm, signingKey: String): JWTTemplate!
+  updateJwtTemplate(id: ID!, name: String, claims: JSON, lifetime: Int, allowedClockSkew: Int, customSigningKey: Boolean, signingAlgorithm: TokenAlgorithm, signingKey: String): JWTTemplate!
+  deleteJwtTemplate(id: ID!): DeleteResponse!
+
+  # SAML
+  createSamlConnection(name: String!, domain: String!, provider: String!, idpEntityId: String, idpSsoUrl: String, idpCertificate: String, idpMetadataUrl: String, idpMetadata: String, attributeMapping: JSON, syncUserAttributes: Boolean, allowSubdomains: Boolean, allowIdpInitiated: Boolean, disableAdditionalIdentifications: Boolean): SamlConnection!
+  updateSamlConnection(id: ID!, name: String, domain: String, idpEntityId: String, idpSsoUrl: String, idpCertificate: String, idpMetadataUrl: String, idpMetadata: String, attributeMapping: JSON, syncUserAttributes: Boolean, allowSubdomains: Boolean, allowIdpInitiated: Boolean, disableAdditionalIdentifications: Boolean, active: Boolean): SamlConnection!
+  deleteSamlConnection(id: ID!): DeleteResponse!
+
+  # Domains and redirects
+  addDomain(name: String!, isPrimary: Boolean, proxyUrl: String): Domain!
+  updateDomain(id: ID!, name: String, proxyUrl: String): Domain!
+  deleteDomain(id: ID!): DeleteResponse!
+  createRedirect(url: String!): Redirect!
+  deleteRedirect(id: ID!): DeleteResponse!
+
+  # Roles and Permissions
+  createRole(name: String!, key: String!, description: String, isCreatorEligible: Boolean): Role!
+  updateRole(id: ID!, name: String, key: String, description: String, isCreatorEligible: Boolean): Role!
+  deleteRole(id: ID!): DeleteResponse!
+  assignRolePermissions(roleId: ID!, permissionIds: [ID!]!): Role!
+  removeRolePermissions(roleId: ID!, permissionIds: [ID!]!): Role!
+
+  createPermission(name: String!, key: String!, description: String): Permission!
+  updatePermission(id: ID!, name: String, key: String, description: String): Permission!
+  deletePermission(id: ID!): DeleteResponse!
+}
+
+# ─────────────────────────────────────────────
+# Input types
+# ─────────────────────────────────────────────
+
+input OrganizationInvitationInput {
+  emailAddress: String!
+  role: String!
+  redirectUrl: String
+  publicMetadata: JSON
+}
+
+# ─────────────────────────────────────────────
+# Common response types
+# ─────────────────────────────────────────────
+
+type DeleteResponse {
+  id: ID!
+  deleted: Boolean!
+  object: String!
+}
