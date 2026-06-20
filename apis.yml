@@ -11,7 +11,7 @@ description: Clerk is a drop-in authentication and user management platform for 
   React, React Router, Expo, Astro, TanStack React Start, Chrome Extension, and vanilla
   JavaScript. Backend SDKs cover Node, Go, Python, Ruby, Java, PHP, and C#. Webhooks
   are delivered via Svix.
-image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
 tags:
 - Authentication
 - User Management
