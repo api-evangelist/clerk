@@ -2,20 +2,27 @@
   "repo": "clerk",
   "feeds": [
     {
-      "source": "https://clerk.com/blog",
+      "source": "https://clerk.com/blog/atom.xml",
       "feed_url": "https://clerk.com/blog/atom.xml",
       "title": "",
       "saved": 0,
-      "method": "discovered"
+      "method": "feed"
+    },
+    {
+      "source": "https://clerk.com/changelog/atom.xml",
+      "feed_url": "https://clerk.com/changelog/atom.xml",
+      "title": "",
+      "saved": 2,
+      "method": "feed"
     },
     {
       "source": "https://clerk.com/changelog",
       "feed_url": "https://clerk.com/changelog/atom.xml",
       "title": "",
-      "saved": 3,
+      "saved": 0,
       "method": "discovered"
     }
   ],
-  "post_count": 7,
-  "fetched": "2026-06-14T20:42:17Z"
+  "post_count": 9,
+  "fetched": "2026-06-27T12:03:07Z"
 }
