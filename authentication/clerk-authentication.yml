@@ -1,0 +1,13 @@
+generated: '2026-07-11'
+method: derived
+source: openapi/clerk-openapi.yml
+summary:
+  types:
+  - http
+schemes:
+- name: BearerAuth
+  type: http
+  scheme: bearer
+  description: Clerk secret key (sk_test_... or sk_live_...)
+  sources:
+  - openapi/clerk-openapi.yml
