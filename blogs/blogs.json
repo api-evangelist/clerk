@@ -12,7 +12,7 @@
       "source": "https://clerk.com/changelog/atom.xml",
       "feed_url": "https://clerk.com/changelog/atom.xml",
       "title": "",
-      "saved": 2,
+      "saved": 0,
       "method": "feed"
     },
     {
@@ -23,6 +23,6 @@
       "method": "discovered"
     }
   ],
-  "post_count": 9,
-  "fetched": "2026-06-27T12:03:07Z"
+  "post_count": 59,
+  "fetched": "2026-07-11T11:50:51Z"
 }
