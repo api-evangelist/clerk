@@ -271,6 +271,8 @@ apis:
   - type: Repository
     url: https://github.com/clerk/openapi-specs
 common:
+- type: AgenticAccess
+  url: agentic-access/clerk-agentic-access.yml
 - type: VulnerabilityDisclosure
   url: security/clerk-vulnerability-disclosure.yml
 - type: DomainSecurity
