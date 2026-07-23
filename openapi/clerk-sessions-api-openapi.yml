@@ -1,0 +1,128 @@
+openapi: 3.1.0
+info:
+  title: Clerk Backend Invitations Sessions API
+  description: 'Clerk drop-in authentication and user management Backend API.
+
+    Authenticated with a Bearer secret key (sk_test_... or sk_live_...).
+
+    Provides server-side management of users, sessions, organizations,
+
+    invitations, sign-in tokens, JWT templates, and webhooks.
+
+    This spec covers a representative slice of the Clerk Backend API;
+
+    the full canonical specification is published at
+
+    https://github.com/clerk/openapi-specs.
+
+    '
+  version: v1
+  contact:
+    name: Clerk Developers
+    url: https://clerk.com/docs/reference/backend-api
+servers:
+- url: https://api.clerk.com/v1
+  description: Clerk production Backend API
+security:
+- BearerAuth: []
+tags:
+- name: Sessions
+paths:
+  /sessions:
+    get:
+      summary: List sessions
+      operationId: listSessions
+      tags:
+      - Sessions
+      parameters:
+      - in: query
+        name: client_id
+        schema:
+          type: string
+      - in: query
+        name: user_id
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - abandoned
+          - active
+          - ended
+          - expired
+          - removed
+          - replaced
+          - revoked
+      - in: query
+        name: limit
+        schema:
+          type: integer
+      - in: query
+        name: offset
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Sessions
+  /sessions/{session_id}:
+    get:
+      summary: Get a session
+      operationId: getSession
+      tags:
+      - Sessions
+      parameters:
+      - in: path
+        name: session_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Session
+  /sessions/{session_id}/revoke:
+    post:
+      summary: Revoke a session
+      operationId: revokeSession
+      tags:
+      - Sessions
+      parameters:
+      - in: path
+        name: session_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Revoked
+  /sessions/{session_id}/verify:
+    post:
+      summary: Verify a session token
+      operationId: verifySession
+      tags:
+      - Sessions
+      parameters:
+      - in: path
+        name: session_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        '200':
+          description: Verified
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Clerk secret key (sk_test_... or sk_live_...)

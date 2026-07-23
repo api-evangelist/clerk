@@ -1,0 +1,88 @@
+openapi: 3.1.0
+info:
+  title: Clerk Backend Invitations API
+  description: 'Clerk drop-in authentication and user management Backend API.
+
+    Authenticated with a Bearer secret key (sk_test_... or sk_live_...).
+
+    Provides server-side management of users, sessions, organizations,
+
+    invitations, sign-in tokens, JWT templates, and webhooks.
+
+    This spec covers a representative slice of the Clerk Backend API;
+
+    the full canonical specification is published at
+
+    https://github.com/clerk/openapi-specs.
+
+    '
+  version: v1
+  contact:
+    name: Clerk Developers
+    url: https://clerk.com/docs/reference/backend-api
+servers:
+- url: https://api.clerk.com/v1
+  description: Clerk production Backend API
+security:
+- BearerAuth: []
+tags:
+- name: Invitations
+paths:
+  /invitations:
+    get:
+      summary: List invitations
+      operationId: listInvitations
+      tags:
+      - Invitations
+      responses:
+        '200':
+          description: Invitations
+    post:
+      summary: Create an invitation
+      operationId: createInvitation
+      tags:
+      - Invitations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - email_address
+              properties:
+                email_address:
+                  type: string
+                public_metadata:
+                  type: object
+                redirect_url:
+                  type: string
+                notify:
+                  type: boolean
+                  default: true
+                ignore_existing:
+                  type: boolean
+      responses:
+        '200':
+          description: Invitation created
+  /invitations/{invitation_id}/revoke:
+    post:
+      summary: Revoke an invitation
+      operationId: revokeInvitation
+      tags:
+      - Invitations
+      parameters:
+      - in: path
+        name: invitation_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Revoked
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Clerk secret key (sk_test_... or sk_live_...)

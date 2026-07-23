@@ -1,0 +1,207 @@
+openapi: 3.1.0
+info:
+  title: Clerk Backend Invitations Users API
+  description: 'Clerk drop-in authentication and user management Backend API.
+
+    Authenticated with a Bearer secret key (sk_test_... or sk_live_...).
+
+    Provides server-side management of users, sessions, organizations,
+
+    invitations, sign-in tokens, JWT templates, and webhooks.
+
+    This spec covers a representative slice of the Clerk Backend API;
+
+    the full canonical specification is published at
+
+    https://github.com/clerk/openapi-specs.
+
+    '
+  version: v1
+  contact:
+    name: Clerk Developers
+    url: https://clerk.com/docs/reference/backend-api
+servers:
+- url: https://api.clerk.com/v1
+  description: Clerk production Backend API
+security:
+- BearerAuth: []
+tags:
+- name: Users
+paths:
+  /users:
+    get:
+      summary: List users
+      operationId: listUsers
+      tags:
+      - Users
+      parameters:
+      - in: query
+        name: email_address
+        schema:
+          type: array
+          items:
+            type: string
+      - in: query
+        name: phone_number
+        schema:
+          type: array
+          items:
+            type: string
+      - in: query
+        name: username
+        schema:
+          type: array
+          items:
+            type: string
+      - in: query
+        name: user_id
+        schema:
+          type: array
+          items:
+            type: string
+      - in: query
+        name: organization_id
+        schema:
+          type: array
+          items:
+            type: string
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          default: 10
+          maximum: 500
+      - in: query
+        name: offset
+        schema:
+          type: integer
+          default: 0
+      - in: query
+        name: order_by
+        schema:
+          type: string
+      responses:
+        '200':
+          description: List of users
+    post:
+      summary: Create a user
+      operationId: createUser
+      tags:
+      - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email_address:
+                  type: array
+                  items:
+                    type: string
+                phone_number:
+                  type: array
+                  items:
+                    type: string
+                username:
+                  type: string
+                password:
+                  type: string
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                public_metadata:
+                  type: object
+                private_metadata:
+                  type: object
+                unsafe_metadata:
+                  type: object
+      responses:
+        '200':
+          description: User created
+  /users/{user_id}:
+    get:
+      summary: Get a user
+      operationId: getUser
+      tags:
+      - Users
+      parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: User
+    patch:
+      summary: Update a user
+      operationId: updateUser
+      tags:
+      - Users
+      parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Delete a user
+      operationId: deleteUser
+      tags:
+      - Users
+      parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Deleted
+  /users/{user_id}/ban:
+    post:
+      summary: Ban a user
+      operationId: banUser
+      tags:
+      - Users
+      parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: User banned
+  /users/{user_id}/unban:
+    post:
+      summary: Unban a user
+      operationId: unbanUser
+      tags:
+      - Users
+      parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: User unbanned
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Clerk secret key (sk_test_... or sk_live_...)

@@ -1,0 +1,53 @@
+openapi: 3.1.0
+info:
+  title: Clerk Backend Invitations Webhooks API
+  description: 'Clerk drop-in authentication and user management Backend API.
+
+    Authenticated with a Bearer secret key (sk_test_... or sk_live_...).
+
+    Provides server-side management of users, sessions, organizations,
+
+    invitations, sign-in tokens, JWT templates, and webhooks.
+
+    This spec covers a representative slice of the Clerk Backend API;
+
+    the full canonical specification is published at
+
+    https://github.com/clerk/openapi-specs.
+
+    '
+  version: v1
+  contact:
+    name: Clerk Developers
+    url: https://clerk.com/docs/reference/backend-api
+servers:
+- url: https://api.clerk.com/v1
+  description: Clerk production Backend API
+security:
+- BearerAuth: []
+tags:
+- name: Webhooks
+paths:
+  /webhooks/svix:
+    post:
+      summary: Create a Svix app for the instance
+      operationId: createSvixApp
+      tags:
+      - Webhooks
+      responses:
+        '200':
+          description: Svix app created
+    delete:
+      summary: Delete the Svix app
+      operationId: deleteSvixApp
+      tags:
+      - Webhooks
+      responses:
+        '200':
+          description: Deleted
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Clerk secret key (sk_test_... or sk_live_...)

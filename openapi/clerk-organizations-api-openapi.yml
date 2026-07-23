@@ -1,0 +1,230 @@
+openapi: 3.1.0
+info:
+  title: Clerk Backend Invitations Organizations API
+  description: 'Clerk drop-in authentication and user management Backend API.
+
+    Authenticated with a Bearer secret key (sk_test_... or sk_live_...).
+
+    Provides server-side management of users, sessions, organizations,
+
+    invitations, sign-in tokens, JWT templates, and webhooks.
+
+    This spec covers a representative slice of the Clerk Backend API;
+
+    the full canonical specification is published at
+
+    https://github.com/clerk/openapi-specs.
+
+    '
+  version: v1
+  contact:
+    name: Clerk Developers
+    url: https://clerk.com/docs/reference/backend-api
+servers:
+- url: https://api.clerk.com/v1
+  description: Clerk production Backend API
+security:
+- BearerAuth: []
+tags:
+- name: Organizations
+paths:
+  /organizations:
+    get:
+      summary: List organizations
+      operationId: listOrganizations
+      tags:
+      - Organizations
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+      - in: query
+        name: offset
+        schema:
+          type: integer
+      - in: query
+        name: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Organizations
+    post:
+      summary: Create an organization
+      operationId: createOrganization
+      tags:
+      - Organizations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - name
+              - created_by
+              properties:
+                name:
+                  type: string
+                slug:
+                  type: string
+                created_by:
+                  type: string
+                public_metadata:
+                  type: object
+                private_metadata:
+                  type: object
+                max_allowed_memberships:
+                  type: integer
+      responses:
+        '200':
+          description: Created
+  /organizations/{organization_id}:
+    get:
+      summary: Get an organization
+      operationId: getOrganization
+      tags:
+      - Organizations
+      parameters:
+      - in: path
+        name: organization_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Organization
+    patch:
+      summary: Update an organization
+      operationId: updateOrganization
+      tags:
+      - Organizations
+      parameters:
+      - in: path
+        name: organization_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Delete an organization
+      operationId: deleteOrganization
+      tags:
+      - Organizations
+      parameters:
+      - in: path
+        name: organization_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Deleted
+  /organizations/{organization_id}/memberships:
+    get:
+      summary: List organization memberships
+      operationId: listOrganizationMemberships
+      tags:
+      - Organizations
+      parameters:
+      - in: path
+        name: organization_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Memberships
+    post:
+      summary: Create an organization membership
+      operationId: createOrganizationMembership
+      tags:
+      - Organizations
+      parameters:
+      - in: path
+        name: organization_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - user_id
+              - role
+              properties:
+                user_id:
+                  type: string
+                role:
+                  type: string
+      responses:
+        '200':
+          description: Membership created
+  /organizations/{organization_id}/invitations:
+    get:
+      summary: List organization invitations
+      operationId: listOrganizationInvitations
+      tags:
+      - Organizations
+      parameters:
+      - in: path
+        name: organization_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Invitations
+    post:
+      summary: Create an organization invitation
+      operationId: createOrganizationInvitation
+      tags:
+      - Organizations
+      parameters:
+      - in: path
+        name: organization_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - email_address
+              - role
+              - inviter_user_id
+              properties:
+                email_address:
+                  type: string
+                role:
+                  type: string
+                inviter_user_id:
+                  type: string
+                public_metadata:
+                  type: object
+                redirect_url:
+                  type: string
+      responses:
+        '200':
+          description: Invitation created
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Clerk secret key (sk_test_... or sk_live_...)
