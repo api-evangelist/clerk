@@ -1,0 +1,583 @@
+openapi: 3.1.0
+info:
+  title: Clerk Backend API
+  description: |
+    Clerk drop-in authentication and user management Backend API.
+    Authenticated with a Bearer secret key (sk_test_... or sk_live_...).
+    Provides server-side management of users, sessions, organizations,
+    invitations, sign-in tokens, JWT templates, and webhooks.
+    This spec covers a representative slice of the Clerk Backend API;
+    the full canonical specification is published at
+    https://github.com/clerk/openapi-specs.
+  version: "v1"
+  contact:
+    name: Clerk Developers
+    url: https://clerk.com/docs/reference/backend-api
+servers:
+  - url: https://api.clerk.com/v1
+    description: Clerk production Backend API
+security:
+  - BearerAuth: []
+paths:
+  /users:
+    get:
+      summary: List users
+      operationId: listUsers
+      tags: [Users]
+      parameters:
+        - in: query
+          name: email_address
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: phone_number
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: username
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: user_id
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: organization_id
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            maximum: 500
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: order_by
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of users
+    post:
+      summary: Create a user
+      operationId: createUser
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email_address:
+                  type: array
+                  items:
+                    type: string
+                phone_number:
+                  type: array
+                  items:
+                    type: string
+                username:
+                  type: string
+                password:
+                  type: string
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                public_metadata:
+                  type: object
+                private_metadata:
+                  type: object
+                unsafe_metadata:
+                  type: object
+      responses:
+        '200':
+          description: User created
+  /users/{user_id}:
+    get:
+      summary: Get a user
+      operationId: getUser
+      tags: [Users]
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User
+    patch:
+      summary: Update a user
+      operationId: updateUser
+      tags: [Users]
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Delete a user
+      operationId: deleteUser
+      tags: [Users]
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted
+  /users/{user_id}/ban:
+    post:
+      summary: Ban a user
+      operationId: banUser
+      tags: [Users]
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User banned
+  /users/{user_id}/unban:
+    post:
+      summary: Unban a user
+      operationId: unbanUser
+      tags: [Users]
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User unbanned
+  /sessions:
+    get:
+      summary: List sessions
+      operationId: listSessions
+      tags: [Sessions]
+      parameters:
+        - in: query
+          name: client_id
+          schema:
+            type: string
+        - in: query
+          name: user_id
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [abandoned, active, ended, expired, removed, replaced, revoked]
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Sessions
+  /sessions/{session_id}:
+    get:
+      summary: Get a session
+      operationId: getSession
+      tags: [Sessions]
+      parameters:
+        - in: path
+          name: session_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session
+  /sessions/{session_id}/revoke:
+    post:
+      summary: Revoke a session
+      operationId: revokeSession
+      tags: [Sessions]
+      parameters:
+        - in: path
+          name: session_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Revoked
+  /sessions/{session_id}/verify:
+    post:
+      summary: Verify a session token
+      operationId: verifySession
+      tags: [Sessions]
+      parameters:
+        - in: path
+          name: session_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        '200':
+          description: Verified
+  /organizations:
+    get:
+      summary: List organizations
+      operationId: listOrganizations
+      tags: [Organizations]
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          schema:
+            type: integer
+        - in: query
+          name: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Organizations
+    post:
+      summary: Create an organization
+      operationId: createOrganization
+      tags: [Organizations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, created_by]
+              properties:
+                name:
+                  type: string
+                slug:
+                  type: string
+                created_by:
+                  type: string
+                public_metadata:
+                  type: object
+                private_metadata:
+                  type: object
+                max_allowed_memberships:
+                  type: integer
+      responses:
+        '200':
+          description: Created
+  /organizations/{organization_id}:
+    get:
+      summary: Get an organization
+      operationId: getOrganization
+      tags: [Organizations]
+      parameters:
+        - in: path
+          name: organization_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Organization
+    patch:
+      summary: Update an organization
+      operationId: updateOrganization
+      tags: [Organizations]
+      parameters:
+        - in: path
+          name: organization_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Delete an organization
+      operationId: deleteOrganization
+      tags: [Organizations]
+      parameters:
+        - in: path
+          name: organization_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted
+  /organizations/{organization_id}/memberships:
+    get:
+      summary: List organization memberships
+      operationId: listOrganizationMemberships
+      tags: [Organizations]
+      parameters:
+        - in: path
+          name: organization_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Memberships
+    post:
+      summary: Create an organization membership
+      operationId: createOrganizationMembership
+      tags: [Organizations]
+      parameters:
+        - in: path
+          name: organization_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, role]
+              properties:
+                user_id:
+                  type: string
+                role:
+                  type: string
+      responses:
+        '200':
+          description: Membership created
+  /organizations/{organization_id}/invitations:
+    get:
+      summary: List organization invitations
+      operationId: listOrganizationInvitations
+      tags: [Organizations]
+      parameters:
+        - in: path
+          name: organization_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invitations
+    post:
+      summary: Create an organization invitation
+      operationId: createOrganizationInvitation
+      tags: [Organizations]
+      parameters:
+        - in: path
+          name: organization_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email_address, role, inviter_user_id]
+              properties:
+                email_address:
+                  type: string
+                role:
+                  type: string
+                inviter_user_id:
+                  type: string
+                public_metadata:
+                  type: object
+                redirect_url:
+                  type: string
+      responses:
+        '200':
+          description: Invitation created
+  /invitations:
+    get:
+      summary: List invitations
+      operationId: listInvitations
+      tags: [Invitations]
+      responses:
+        '200':
+          description: Invitations
+    post:
+      summary: Create an invitation
+      operationId: createInvitation
+      tags: [Invitations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email_address]
+              properties:
+                email_address:
+                  type: string
+                public_metadata:
+                  type: object
+                redirect_url:
+                  type: string
+                notify:
+                  type: boolean
+                  default: true
+                ignore_existing:
+                  type: boolean
+      responses:
+        '200':
+          description: Invitation created
+  /invitations/{invitation_id}/revoke:
+    post:
+      summary: Revoke an invitation
+      operationId: revokeInvitation
+      tags: [Invitations]
+      parameters:
+        - in: path
+          name: invitation_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Revoked
+  /sign_in_tokens:
+    post:
+      summary: Create a sign-in token
+      operationId: createSignInToken
+      tags: [SignInTokens]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id]
+              properties:
+                user_id:
+                  type: string
+                expires_in_seconds:
+                  type: integer
+                  default: 2592000
+      responses:
+        '200':
+          description: Sign-in token created
+  /sign_in_tokens/{sign_in_token_id}/revoke:
+    post:
+      summary: Revoke a sign-in token
+      operationId: revokeSignInToken
+      tags: [SignInTokens]
+      parameters:
+        - in: path
+          name: sign_in_token_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Revoked
+  /jwt_templates:
+    get:
+      summary: List JWT templates
+      operationId: listJwtTemplates
+      tags: [JwtTemplates]
+      responses:
+        '200':
+          description: Templates
+    post:
+      summary: Create a JWT template
+      operationId: createJwtTemplate
+      tags: [JwtTemplates]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, claims]
+              properties:
+                name:
+                  type: string
+                claims:
+                  type: object
+                lifetime:
+                  type: integer
+                allowed_clock_skew:
+                  type: integer
+                custom_signing_key:
+                  type: boolean
+                signing_algorithm:
+                  type: string
+      responses:
+        '200':
+          description: Created
+  /webhooks/svix:
+    post:
+      summary: Create a Svix app for the instance
+      operationId: createSvixApp
+      tags: [Webhooks]
+      responses:
+        '200':
+          description: Svix app created
+    delete:
+      summary: Delete the Svix app
+      operationId: deleteSvixApp
+      tags: [Webhooks]
+      responses:
+        '200':
+          description: Deleted
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Clerk secret key (sk_test_... or sk_live_...)

@@ -1,0 +1,26 @@
+{
+  "provider": "clerk",
+  "sources": [
+    "clerk-invitations-api-openapi.yml",
+    "clerk-jwttemplates-api-openapi.yml",
+    "clerk-organizations-api-openapi.yml",
+    "clerk-sessions-api-openapi.yml",
+    "clerk-signintokens-api-openapi.yml",
+    "clerk-users-api-openapi.yml",
+    "clerk-webhooks-api-openapi.yml"
+  ],
+  "outputs": [
+    "clerk-invitations-api-openapi.yml",
+    "clerk-jwttemplates-api-openapi.yml",
+    "clerk-organizations-api-openapi.yml",
+    "clerk-sessions-api-openapi.yml",
+    "clerk-signintokens-api-openapi.yml",
+    "clerk-users-api-openapi.yml",
+    "clerk-webhooks-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}
