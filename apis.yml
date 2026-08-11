@@ -364,6 +364,19 @@ apis:
   - type: GraphQL
     url: graphql/clerk-graphql.md
 common:
+- type: IssueTracker
+  url: https://github.com/clerk/javascript/issues
+- type: Releases
+  url: https://github.com/clerk/javascript/releases
+- type: SecurityPolicy
+  url: https://github.com/clerk/javascript/blob/main/docs/SECURITY.md
+- type: CodeOfConduct
+  url: https://github.com/clerk/javascript/blob/main/docs/CODE_OF_CONDUCT.md
+- type: ContributionGuide
+  url: https://github.com/clerk/javascript/blob/main/docs/CONTRIBUTING.md
+- type: License
+  name: MIT
+  url: https://github.com/clerk/javascript/blob/main/LICENSE
 - type: AgenticAccess
   url: agentic-access/clerk-agentic-access.yml
 - type: VulnerabilityDisclosure
