@@ -1,0 +1,68 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Clerk Backend Invitations API",
+    "version": "v1"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Invitations",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List invitations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.clerk.com/v1/invitations"
+          },
+          "docs": "List invitations"
+        },
+        {
+          "info": {
+            "name": "Create an invitation",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.clerk.com/v1/invitations",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create an invitation"
+        },
+        {
+          "info": {
+            "name": "Revoke an invitation",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.clerk.com/v1/invitations/:invitation_id/revoke",
+            "params": [
+              {
+                "name": "invitation_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Revoke an invitation"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

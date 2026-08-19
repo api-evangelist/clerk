@@ -1,0 +1,194 @@
+{
+  "item": [
+    {
+      "id": "afd74084-a4b6-4c27-afcb-41576617ef9c",
+      "name": "JwtTemplates",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "740bcff0-3e98-41c8-82ee-62045d2d8427",
+          "name": "List JWT templates",
+          "request": {
+            "name": "List JWT templates",
+            "description": {},
+            "url": {
+              "path": [
+                "jwt_templates"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "5d48d71c-55ba-498f-a962-9c2476b1e18d",
+              "name": "Templates",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "jwt_templates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9d3a0ca4-10de-4277-82d6-184caec19d31",
+          "name": "Create a JWT template",
+          "request": {
+            "name": "Create a JWT template",
+            "description": {},
+            "url": {
+              "path": [
+                "jwt_templates"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<string>\",\n  \"claims\": \"<object>\",\n  \"lifetime\": \"<integer>\",\n  \"allowed_clock_skew\": \"<integer>\",\n  \"custom_signing_key\": \"<boolean>\",\n  \"signing_algorithm\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "58ecc982-96c2-4a15-ade7-5dccefb0e2bc",
+              "name": "Created",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "jwt_templates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"claims\": \"<object>\",\n  \"lifetime\": \"<integer>\",\n  \"allowed_clock_skew\": \"<integer>\",\n  \"custom_signing_key\": \"<boolean>\",\n  \"signing_algorithm\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.clerk.com/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "f0585a2a-2fd6-496d-8bf3-d28b254a72a6",
+    "name": "Clerk Backend Invitations JwtTemplates API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Clerk drop-in authentication and user management Backend API.\nAuthenticated with a Bearer secret key (sk_test_... or sk_live_...).\nProvides server-side management of users, sessions, organizations,\ninvitations, sign-in tokens, JWT templates, and webhooks.\nThis spec covers a representative slice of the Clerk Backend API;\nthe full canonical specification is published at\nhttps://github.com/clerk/openapi-specs.\n\n\nContact Support:\n Name: Clerk Developers",
+      "type": "text/plain"
+    }
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Clerk Backend Invitations Sessions API",
+    "version": "v1"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Sessions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List sessions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.clerk.com/v1/sessions",
+            "params": [
+              {
+                "name": "client_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List sessions"
+        },
+        {
+          "info": {
+            "name": "Get a session",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.clerk.com/v1/sessions/:session_id",
+            "params": [
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get a session"
+        },
+        {
+          "info": {
+            "name": "Revoke a session",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.clerk.com/v1/sessions/:session_id/revoke",
+            "params": [
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Revoke a session"
+        },
+        {
+          "info": {
+            "name": "Verify a session token",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.clerk.com/v1/sessions/:session_id/verify",
+            "params": [
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Verify a session token"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

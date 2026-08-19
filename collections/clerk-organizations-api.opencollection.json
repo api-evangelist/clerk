@@ -1,0 +1,205 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Clerk Backend Invitations Organizations API",
+    "version": "v1"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Organizations",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List organizations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.clerk.com/v1/organizations",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "query",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List organizations"
+        },
+        {
+          "info": {
+            "name": "Create an organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.clerk.com/v1/organizations",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create an organization"
+        },
+        {
+          "info": {
+            "name": "Get an organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.clerk.com/v1/organizations/:organization_id",
+            "params": [
+              {
+                "name": "organization_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get an organization"
+        },
+        {
+          "info": {
+            "name": "Update an organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.clerk.com/v1/organizations/:organization_id",
+            "params": [
+              {
+                "name": "organization_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update an organization"
+        },
+        {
+          "info": {
+            "name": "Delete an organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.clerk.com/v1/organizations/:organization_id",
+            "params": [
+              {
+                "name": "organization_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete an organization"
+        },
+        {
+          "info": {
+            "name": "List organization memberships",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.clerk.com/v1/organizations/:organization_id/memberships",
+            "params": [
+              {
+                "name": "organization_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "List organization memberships"
+        },
+        {
+          "info": {
+            "name": "Create an organization membership",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.clerk.com/v1/organizations/:organization_id/memberships",
+            "params": [
+              {
+                "name": "organization_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create an organization membership"
+        },
+        {
+          "info": {
+            "name": "List organization invitations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.clerk.com/v1/organizations/:organization_id/invitations",
+            "params": [
+              {
+                "name": "organization_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "List organization invitations"
+        },
+        {
+          "info": {
+            "name": "Create an organization invitation",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.clerk.com/v1/organizations/:organization_id/invitations",
+            "params": [
+              {
+                "name": "organization_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create an organization invitation"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

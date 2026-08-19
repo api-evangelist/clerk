@@ -1,0 +1,57 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Clerk Backend Invitations SignInTokens API",
+    "version": "v1"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "SignInTokens",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create a sign-in token",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.clerk.com/v1/sign_in_tokens",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a sign-in token"
+        },
+        {
+          "info": {
+            "name": "Revoke a sign-in token",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.clerk.com/v1/sign_in_tokens/:sign_in_token_id/revoke",
+            "params": [
+              {
+                "name": "sign_in_token_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Revoke a sign-in token"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

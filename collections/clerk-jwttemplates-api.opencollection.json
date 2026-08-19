@@ -1,0 +1,50 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Clerk Backend Invitations JwtTemplates API",
+    "version": "v1"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "JwtTemplates",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List JWT templates",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.clerk.com/v1/jwt_templates"
+          },
+          "docs": "List JWT templates"
+        },
+        {
+          "info": {
+            "name": "Create a JWT template",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.clerk.com/v1/jwt_templates",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a JWT template"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

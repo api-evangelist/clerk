@@ -1,0 +1,214 @@
+{
+  "item": [
+    {
+      "id": "d5184ab0-a7a2-47b6-90ae-a11bdddf1fcf",
+      "name": "SignInTokens",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "618d288d-67dc-4f80-a0b7-1de3266b71e7",
+          "name": "Create a sign-in token",
+          "request": {
+            "name": "Create a sign-in token",
+            "description": {},
+            "url": {
+              "path": [
+                "sign_in_tokens"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"<string>\",\n  \"expires_in_seconds\": 2592000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "af650d43-3c6d-4518-a448-0ec079d435b4",
+              "name": "Sign-in token created",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "sign_in_tokens"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user_id\": \"<string>\",\n  \"expires_in_seconds\": 2592000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "110b5bc3-5b56-4ab9-b6c6-379429621fc2",
+          "name": "Revoke a sign-in token",
+          "request": {
+            "name": "Revoke a sign-in token",
+            "description": {},
+            "url": {
+              "path": [
+                "sign_in_tokens",
+                ":sign_in_token_id",
+                "revoke"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "sign_in_token_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "fa44b73b-052f-42b0-8154-bb3722e63960",
+              "name": "Revoked",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "sign_in_tokens",
+                    ":sign_in_token_id",
+                    "revoke"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "sign_in_token_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.clerk.com/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "42d360d1-d716-4eaf-939a-dcead50466f6",
+    "name": "Clerk Backend Invitations SignInTokens API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Clerk drop-in authentication and user management Backend API.\nAuthenticated with a Bearer secret key (sk_test_... or sk_live_...).\nProvides server-side management of users, sessions, organizations,\ninvitations, sign-in tokens, JWT templates, and webhooks.\nThis spec covers a representative slice of the Clerk Backend API;\nthe full canonical specification is published at\nhttps://github.com/clerk/openapi-specs.\n\n\nContact Support:\n Name: Clerk Developers",
+      "type": "text/plain"
+    }
+  }
+}

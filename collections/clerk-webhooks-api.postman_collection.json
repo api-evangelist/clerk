@@ -1,0 +1,175 @@
+{
+  "item": [
+    {
+      "id": "0e352786-8c1e-4960-9e6c-06b41e6c4f22",
+      "name": "Webhooks",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "c7fcd3c7-1efb-493e-8fc6-11f5f3a86d91",
+          "name": "Create a Svix app for the instance",
+          "request": {
+            "name": "Create a Svix app for the instance",
+            "description": {},
+            "url": {
+              "path": [
+                "webhooks",
+                "svix"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "39399812-c9f1-467c-bfc0-1781b4a53e31",
+              "name": "Svix app created",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "webhooks",
+                    "svix"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "125afe18-3bbe-4b55-97d5-27b2a443a9d6",
+          "name": "Delete the Svix app",
+          "request": {
+            "name": "Delete the Svix app",
+            "description": {},
+            "url": {
+              "path": [
+                "webhooks",
+                "svix"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "DELETE",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "ce214b47-853d-4c64-977f-b26559ea6f95",
+              "name": "Deleted",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "webhooks",
+                    "svix"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.clerk.com/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "36f50570-250b-457f-85f4-0e979dee70e5",
+    "name": "Clerk Backend Invitations Webhooks API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Clerk drop-in authentication and user management Backend API.\nAuthenticated with a Bearer secret key (sk_test_... or sk_live_...).\nProvides server-side management of users, sessions, organizations,\ninvitations, sign-in tokens, JWT templates, and webhooks.\nThis spec covers a representative slice of the Clerk Backend API;\nthe full canonical specification is published at\nhttps://github.com/clerk/openapi-specs.\n\n\nContact Support:\n Name: Clerk Developers",
+      "type": "text/plain"
+    }
+  }
+}

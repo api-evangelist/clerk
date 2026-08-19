@@ -1,0 +1,46 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Clerk Backend Invitations Webhooks API",
+    "version": "v1"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Webhooks",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create a Svix app for the instance",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.clerk.com/v1/webhooks/svix"
+          },
+          "docs": "Create a Svix app for the instance"
+        },
+        {
+          "info": {
+            "name": "Delete the Svix app",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.clerk.com/v1/webhooks/svix"
+          },
+          "docs": "Delete the Svix app"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
