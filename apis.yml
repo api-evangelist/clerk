@@ -32,6 +32,15 @@ tags:
 - Passkeys
 - MFA
 - B2B
+- Organization
+- Billing
+tags_raw:
+- Authentication
+- User Management
+- Identity
+- Passkeys
+- MFA
+- B2B
 - Organizations
 - Billing
 created: '2026-05-23'
@@ -61,6 +70,10 @@ apis:
   humanURL: https://clerk.com/docs/integrations/webhooks/overview
   baseURL: customer-configured
   tags:
+  - Webhook
+  - Event
+  - Svix
+  tags_raw:
   - Webhooks
   - Events
   - Svix
@@ -285,6 +298,8 @@ apis:
   humanURL: https://clerk.com/docs/reference/backend-api
   baseURL: https://api.clerk.com
   tags:
+  - JWT Templates
+  tags_raw:
   - JwtTemplates
   properties:
   - type: OpenAPI
@@ -299,6 +314,8 @@ apis:
   humanURL: https://clerk.com/docs/reference/backend-api
   baseURL: https://api.clerk.com
   tags:
+  - Organization
+  tags_raw:
   - Organizations
   properties:
   - type: OpenAPI
@@ -327,6 +344,8 @@ apis:
   humanURL: https://clerk.com/docs/reference/backend-api
   baseURL: https://api.clerk.com
   tags:
+  - Sign-in Tokens
+  tags_raw:
   - SignInTokens
   properties:
   - type: OpenAPI
@@ -341,6 +360,8 @@ apis:
   humanURL: https://clerk.com/docs/reference/backend-api
   baseURL: https://api.clerk.com
   tags:
+  - User
+  tags_raw:
   - Users
   properties:
   - type: OpenAPI
@@ -355,6 +376,8 @@ apis:
   humanURL: https://clerk.com/docs/reference/backend-api
   baseURL: https://api.clerk.com
   tags:
+  - Webhook
+  tags_raw:
   - Webhooks
   properties:
   - type: OpenAPI
