@@ -312,7 +312,7 @@ apis:
   humanURL: https://clerk.com/docs/reference/backend-api
   baseURL: https://api.clerk.com
   tags:
-  - JwtTemplates
+  - JWT Templates
   tags_raw:
   - JwtTemplates
   properties:
@@ -358,7 +358,7 @@ apis:
   humanURL: https://clerk.com/docs/reference/backend-api
   baseURL: https://api.clerk.com
   tags:
-  - SignInTokens
+  - Sign-in Tokens
   tags_raw:
   - SignInTokens
   properties:
