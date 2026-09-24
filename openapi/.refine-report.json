@@ -21,6 +21,15 @@
   "archived": [],
   "errors": [],
   "warnings": [],
-  "notes": [],
+  "notes": [
+    "clerk-invitations-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "clerk-jwttemplates-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "clerk-organizations-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "clerk-sessions-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "clerk-signintokens-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "clerk-users-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "clerk-webhooks-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "apis.yml register: already-registered"
+  ],
   "skipped": []
 }
